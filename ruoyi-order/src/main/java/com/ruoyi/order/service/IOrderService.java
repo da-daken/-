@@ -1,0 +1,108 @@
+package com.ruoyi.order.service;
+
+import java.util.Date;
+import java.util.List;
+
+import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.order.domain.AYTime;
+import com.ruoyi.order.domain.Order;
+import com.ruoyi.order.domain.OrderTime;
+import com.ruoyi.order.domain.request.CheckRequest;
+import com.ruoyi.order.domain.request.CommitRequest;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * 用户、家政员Service接口
+ * 
+ * @author ruoyi
+ * @date 2024-03-17
+ */
+public interface IOrderService 
+{
+    /**
+     * 查询用户、家政员
+     * 
+     * @param id 用户、家政员主键
+     * @return 用户、家政员
+     */
+    public Order selectOrderById(Long id);
+
+    /**
+     * 查询用户、家政员列表
+     * 
+     * @param order 用户、家政员
+     * @return 用户、家政员集合
+     */
+    public List<Order> selectOrderList(Order order);
+
+    /**
+     * 创建订单
+     * 
+     * @param order 用户、家政员
+     * @return 结果
+     */
+    public int insertOrder(Order order, HttpServletRequest request);
+
+    /**
+     * 生成防重令牌
+     * @param id
+     * @param response
+     * @return
+     */
+    public AjaxResult generateToken(Long id, HttpServletResponse response);
+
+    public void cancelOrder(Long id);
+
+    public int payOrder(Long id);
+
+//    /**
+//     * 修改用户、家政员
+//     *
+//     * @param order 用户、家政员
+//     * @return 结果
+//     */
+//    public int updateOrder(Order order);
+
+//    /**
+//     * 批量删除用户、家政员
+//     *
+//     * @param ids 需要删除的用户、家政员主键集合
+//     * @return 结果
+//     */
+//    public int deleteOrderByIds(Long[] ids);
+
+//    /**
+//     * 删除用户、家政员信息
+//     *
+//     * @param id 用户、家政员主键
+//     * @return 结果
+//     */
+//    public int deleteOrderById(Long id);
+
+    /**
+     * 获取当天已支付订单的时间
+     * @param calDate
+     * @return
+     */
+    List<OrderTime> getOrderTime(Date calDate);
+
+    /**
+     * 评价订单，给订单打分
+     * @param commitRequest
+     */
+    void commitOrder(CommitRequest commitRequest);
+
+    /**
+     * 核销订单
+     * @param checkRequest
+     */
+    void checkOrder(CheckRequest checkRequest);
+
+    List<AYTime> getOrderTime1(Date calDate);
+
+    boolean checkInside(String time, List<AYTime> ayTime);
+
+    AjaxResult getRoleInfo(Long userId);
+}

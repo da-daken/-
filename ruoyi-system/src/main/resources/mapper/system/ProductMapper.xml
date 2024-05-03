@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ProductMapper">
+    
+    <resultMap type="Product" id="ProductResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="typeId"    column="type_id"    />
+        <result property="img"    column="img"    />
+        <result property="content"    column="content"    />
+        <result property="singelPrice"    column="singel_price"    />
+        <result property="score"    column="score"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="isDeleted"    column="is_deleted"    />
+    </resultMap>
+
+    <sql id="selectProductVo">
+        select id, user_id, type_id, img, content, singel_price, score, create_time, update_time, is_deleted from product
+    </sql>
+
+    <select id="selectProductList" parameterType="Product" resultMap="ProductResult">
+        <include refid="selectProductVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="typeId != null "> and type_id = #{typeId}</if>
+            <if test="img != null  and img != ''"> and img = #{img}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="singelPrice != null "> and singel_price = #{singelPrice}</if>
+            <if test="score != null "> and score = #{score}</if>
+            <if test="isDeleted != null  and isDeleted != ''"> and is_deleted = #{isDeleted}</if>
+        </where>
+    </select>
+    
+    <select id="selectProductById" parameterType="Long" resultMap="ProductResult">
+        <include refid="selectProductVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertProduct" parameterType="Product" useGeneratedKeys="true" keyProperty="id">
+        insert into product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="typeId != null">type_id,</if>
+            <if test="img != null">img,</if>
+            <if test="content != null">content,</if>
+            <if test="singelPrice != null">singel_price,</if>
+            <if test="count != null">count,</if>
+            <if test="score != null">score,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="isDeleted != null">is_deleted,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="typeId != null">#{typeId},</if>
+            <if test="img != null">#{img},</if>
+            <if test="content != null">#{content},</if>
+            <if test="singelPrice != null">#{singelPrice},</if>
+            <if test="score != null">#{score},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="isDeleted != null">#{isDeleted},</if>
+         </trim>
+    </insert>
+
+    <update id="updateProduct" parameterType="Product">
+        update product
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="typeId != null">type_id = #{typeId},</if>
+            <if test="img != null">img = #{img},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="singelPrice != null">singel_price = #{singelPrice},</if>
+            <if test="score != null">score = #{score},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="isDeleted != null">is_deleted = #{isDeleted},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteProductById" parameterType="Long">
+        delete from product where id = #{id}
+    </delete>
+
+    <delete id="deleteProductByIds" parameterType="String">
+        delete from product where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

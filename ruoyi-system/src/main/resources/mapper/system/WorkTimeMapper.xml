@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.WorkTimeMapper">
+    
+    <resultMap type="WorkTime" id="WorkTimeResult">
+        <result property="id"    column="id"    />
+        <result property="bId"    column="b_id"    />
+        <result property="pId"    column="p_id"    />
+        <result property="mon"    column="mon"    />
+        <result property="tues"    column="tues"    />
+        <result property="wed"    column="wed"    />
+        <result property="thur"    column="thur"    />
+        <result property="fri"    column="fri"    />
+        <result property="sat"    column="sat"    />
+        <result property="sun"    column="sun"    />
+    </resultMap>
+
+    <sql id="selectWorkTimeVo">
+        select id, b_id, p_id, mon, tues, wed, thur, fri, sat, sun from work_time
+    </sql>
+
+    <select id="selectWorkTimeList" parameterType="WorkTime" resultMap="WorkTimeResult">
+        <include refid="selectWorkTimeVo"/>
+        <where>  
+            <if test="bId != null "> and b_id = #{bId}</if>
+            <if test="pId != null "> and p_id = #{pId}</if>
+            <if test="mon != null  and mon != ''"> and mon = #{mon}</if>
+            <if test="tues != null  and tues != ''"> and tues = #{tues}</if>
+            <if test="wed != null  and wed != ''"> and wed = #{wed}</if>
+            <if test="thur != null  and thur != ''"> and thur = #{thur}</if>
+            <if test="fri != null  and fri != ''"> and fri = #{fri}</if>
+            <if test="sat != null  and sat != ''"> and sat = #{sat}</if>
+            <if test="sun != null  and sun != ''"> and sun = #{sun}</if>
+        </where>
+    </select>
+    
+    <select id="selectWorkTimeById" parameterType="Long" resultMap="WorkTimeResult">
+        <include refid="selectWorkTimeVo"/>
+        where bId = #{b_id}
+    </select>
+        
+    <insert id="insertWorkTime" parameterType="WorkTime" useGeneratedKeys="true" keyProperty="id">
+        insert into work_time
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bId != null">b_id,</if>
+            <if test="pId != null">p_id,</if>
+            <if test="mon != null and mon != ''">mon,</if>
+            <if test="tues != null">tues,</if>
+            <if test="wed != null">wed,</if>
+            <if test="thur != null">thur,</if>
+            <if test="fri != null">fri,</if>
+            <if test="sat != null">sat,</if>
+            <if test="sun != null">sun,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bId != null">#{bId},</if>
+            <if test="pId != null">#{pId},</if>
+            <if test="mon != null and mon != ''">#{mon},</if>
+            <if test="tues != null">#{tues},</if>
+            <if test="wed != null">#{wed},</if>
+            <if test="thur != null">#{thur},</if>
+            <if test="fri != null">#{fri},</if>
+            <if test="sat != null">#{sat},</if>
+            <if test="sun != null">#{sun},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWorkTime" parameterType="WorkTime">
+        update work_time
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="bId != null">b_id = #{bId},</if>
+            <if test="pId != null">p_id = #{pId},</if>
+            <if test="mon != null and mon != ''">mon = #{mon},</if>
+            <if test="tues != null">tues = #{tues},</if>
+            <if test="wed != null">wed = #{wed},</if>
+            <if test="thur != null">thur = #{thur},</if>
+            <if test="fri != null">fri = #{fri},</if>
+            <if test="sat != null">sat = #{sat},</if>
+            <if test="sun != null">sun = #{sun},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWorkTimeById" parameterType="Long">
+        delete from work_time where id = #{id}
+    </delete>
+
+    <delete id="deleteWorkTimeByIds" parameterType="String">
+        delete from work_time where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
