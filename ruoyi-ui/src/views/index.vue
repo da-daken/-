@@ -42,33 +42,36 @@
     <el-divider />
     <el-row :gutter="20">
       <el-col :xs="24" :sm="24" :md="12" :lg="8">
-        <el-card class="update-log">
-          <div slot="header" class="clearfix">
-            <span>日常通告</span>
-          </div>
-          <div class="body">
-            <p>
-            ***************
-            </p>
-          </div>
-          <div class="clearfix">
-            <span>
-              可以每月展示各个服务下的金牌家政员
-            </span>
-          </div>
-        </el-card>
-        <el-card class="update-log">
-          <div class="body">
-            <p>
-              ***************
-            </p>
-          </div>
-          <div slot="header" class="clearfix">
-            <span>
-              可以每月展示各个服务下的金牌家政员
-            </span>
-          </div>
-        </el-card>
+        <div>
+          金牌家政员展示！！！！！：
+        </div>
+        <a-list :grid="{ gutter: 16, column: 2 }" :data-source="dataList">
+
+          <a-list-item slot="renderItem" slot-scope="item, index">
+            <a-card :title="item.typeName">
+              <div>
+                <img
+                  slot="extra"
+                  width="272"
+                  alt="logo"
+                  src=""
+                />
+              </div>
+              <div>
+                金牌阿姨名称： {{ item.nickName }}
+              </div>
+              <div>
+                服务名称：{{ item.typeName }}
+              </div>
+              <div>
+                服务详情：{{  item.content }}
+              </div>
+              <div>
+                阿姨的服务均分：{{ item.score }}
+              </div>
+            </a-card>
+          </a-list-item>
+        </a-list>
       </el-col>
       <el-col :xs="24" :sm="24" :md="12" :lg="8">
       </el-col>
@@ -78,17 +81,29 @@
 </template>
 
 <script>
+import {goldenService} from "@/api/order/order";
+
 export default {
   name: "Index",
   data() {
     return {
       // 版本号
-      version: "3.8.7"
+      version: "3.8.7",
+      dataList: []
     };
   },
+  async created() {
+    await this.getData()
+  },
+
   methods: {
     goTarget(href) {
       window.open(href, "_blank");
+    },
+    async getData() {
+      const resp = await goldenService()
+      console.log(resp)
+      this.dataList = resp.data
     }
   }
 };

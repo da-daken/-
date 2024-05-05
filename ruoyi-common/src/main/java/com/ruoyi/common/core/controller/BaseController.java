@@ -90,6 +90,16 @@ public class BaseController
         return rspData;
     }
 
+    protected TableDataInfo getDataTable(List<?> listVO, List<?> list)
+    {
+        TableDataInfo rspData = new TableDataInfo();
+        rspData.setCode(HttpStatus.SUCCESS);
+        rspData.setMsg("查询成功");
+        rspData.setRows(listVO);
+        rspData.setTotal(new PageInfo(list).getTotal());
+        return rspData;
+    }
+
     /**
      * 返回成功
      */

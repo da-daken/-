@@ -1,4 +1,4 @@
-package com.ruoyi.order.domain;
+package com.ruoyi.system.domain;
 
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -19,6 +19,8 @@ public class Order extends BaseEntity
 
     /** 主键id */
     private Long id;
+
+    private Long pId;
 
     /** 家政员id */
     @Excel(name = "家政员id")
@@ -178,5 +180,13 @@ public class Order extends BaseEntity
             .append("code", getCode())
             .append("score", getScore())
             .toString();
+    }
+
+    public Long getpId() {
+        return pId;
+    }
+
+    public void setpId(Long pId) {
+        this.pId = pId;
     }
 }

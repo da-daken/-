@@ -5,6 +5,16 @@ import Cookies from 'js-cookie'
 import Element from 'element-ui'
 import './assets/styles/element-variables.scss'
 
+import Antd from 'ant-design-vue'
+
+import 'ant-design-vue/dist/antd.css'
+// 引入Echarts
+import * as echarts from 'echarts'
+
+
+import 'echarts-gl';
+
+Vue.prototype.$echarts = echarts
 import '@/assets/styles/index.scss' // global css
 import '@/assets/styles/ruoyi.scss' // ruoyi css
 import App from './App'
@@ -75,6 +85,9 @@ DictData.install()
 Vue.use(Element, {
   size: Cookies.get('size') || 'medium' // set element-ui default size
 })
+
+Vue.use(Antd)
+
 
 Vue.config.productionTip = false
 

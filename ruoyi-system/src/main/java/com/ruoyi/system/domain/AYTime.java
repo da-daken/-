@@ -1,4 +1,4 @@
-package com.ruoyi.order.domain;
+package com.ruoyi.system.domain;
 
 /**
  * @author daken
@@ -10,6 +10,9 @@ public class AYTime {
     private String startTime;
     private String endTime;
 
+    public AYTime(){
+
+    }
     public AYTime(String startTime, String endTime){
         this.startTime = startTime;
         this.endTime = endTime;

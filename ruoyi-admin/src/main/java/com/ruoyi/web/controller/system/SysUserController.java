@@ -262,13 +262,13 @@ public class SysUserController extends BaseController
         return AjaxResult.success();
     }
 
-    // todo 权限
-    @Log(title = "用户发起审核")
-    @PostMapping("/startCheck")
-    public AjaxResult startCheck(@RequestBody StartCheckRequest startCheckRequest){
-        userService.startCheck(startCheckRequest);
-        return AjaxResult.success();
-    }
+//    // todo 权限
+//    @Log(title = "用户发起审核")
+//    @PostMapping("/startCheck")
+//    public AjaxResult startCheck(@RequestBody StartCheckRequest startCheckRequest){
+//        userService.startCheck(startCheckRequest);
+//        return AjaxResult.success();
+//    }
 
     @Log(title = "用户切换身份")
     @PutMapping("/trans")

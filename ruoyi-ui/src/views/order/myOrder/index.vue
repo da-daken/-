@@ -12,7 +12,7 @@
       <el-form-item label="服务id" prop="productId">
         <el-input
           v-model="queryParams.productId"
-          placeholder="请输入服务id"
+          placeholder="请输入服务类型id"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -24,6 +24,21 @@
           value-format="yyyy-MM-dd"
           placeholder="请选择开始时间">
         </el-date-picker>
+      </el-form-item>
+      <el-form-item label="订单状态" prop="status">
+        <el-select
+          v-model="queryParams.status"
+          placeholder="订单状态"
+          clearable
+          style="width: 240px"
+        >
+          <el-option
+            v-for="dict in dict.type.sys_order_status"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -81,7 +96,7 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="订单id" align="center" prop="id" />
       <el-table-column label="家政员id" align="center" prop="bId" />
-      <el-table-column label="服务id" align="center" prop="productId" />
+      <el-table-column label="服务id" align="center" prop="pId" />
       <el-table-column label="开始时间" align="center" prop="startTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.startTime, '{y}-{m}-{d} {h}:{m}:{s}') }}</span>
@@ -92,26 +107,24 @@
           <span>{{ parseTime(scope.row.endTime, '{y}-{m}-{d} {h}:{m}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="数量" align="center" prop="count" />
-      <el-table-column label="订单状态" align="center" prop="status" />
+      <el-table-column label="订单总价" align="center" prop="totalPrice" />
+      <el-table-column label="订单单项数量" align="center" prop="count" />
+      <el-table-column label="订单状态" align="center" prop="status" >
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.sys_order_status" :value="scope.row.status"/>
+        </template>
+      </el-table-column>
       <el-table-column label="6位数的订单核销码" align="center" prop="code" />
       <el-table-column label="该订单服务的得分" align="center" prop="score" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button
+          <el-button v-if="scope.row.status !== 4 && scope.row.status !== 2"
             size="mini"
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['order:order:edit']"
-          >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['order:order:remove']"
-          >删除</el-button>
+          >下一步操作</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -127,47 +140,28 @@
     <!-- 添加或修改用户、家政员对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="家政员id" prop="bId">
-          <el-input v-model="form.bId" placeholder="请输入家政员id" />
-        </el-form-item>
-        <el-form-item label="普通用户id" prop="cId">
-          <el-input v-model="form.cId" placeholder="请输入普通用户id" />
-        </el-form-item>
-        <el-form-item label="服务id" prop="productId">
-          <el-input v-model="form.productId" placeholder="请输入服务id" />
-        </el-form-item>
-        <el-form-item label="当天的日期" prop="dateTime">
-          <el-date-picker clearable
-            v-model="form.dateTime"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择当天的日期">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="开始时间" prop="startTime">
-          <el-date-picker clearable
-            v-model="form.startTime"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择开始时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="结束时间" prop="endTime">
-          <el-date-picker clearable
-            v-model="form.endTime"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择结束时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="数量" prop="count">
-          <el-input v-model="form.count" placeholder="请输入数量" />
-        </el-form-item>
-        <el-form-item label="6位数的订单核销码" prop="code">
+<!--        <el-form-item label="结束时间" prop="endTime">-->
+<!--          <el-date-picker clearable-->
+<!--            v-model="form.endTime"-->
+<!--            type="date"-->
+<!--            value-format="yyyy-MM-dd"-->
+<!--            placeholder="请选择结束时间">-->
+<!--          </el-date-picker>-->
+<!--        </el-form-item>-->
+        <el-form-item v-if="this.$store.state.user.roles.at(0) === 'service' && form.status === 1" label="6位数的订单核销码" prop="code">
           <el-input v-model="form.code" placeholder="请输入6位数的订单核销码" />
         </el-form-item>
-        <el-form-item label="该订单服务的得分" prop="score">
-          <el-input v-model="form.score" placeholder="请输入该订单服务的得分" />
+        <el-form-item v-if="this.$store.state.user.roles.at(0) === 'normal' && form.status === 3" label="服务打分" prop="score">
+          <el-input v-model="form.score" placeholder="请输入该订单服务的得分（1-5分，填数字即可）" />
+        </el-form-item>
+        <el-form-item v-if="this.$store.state.user.roles.at(0) === 'normal' && form.status === 1" label="是否取消" >
+          <el-radio-group v-model="form.status">
+            <el-radio
+              v-for="dict in dict.type.sys_yes_on"
+              :key="dict.value"
+              :label="dict.value"
+            >{{dict.label}}</el-radio>
+          </el-radio-group>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -182,6 +176,7 @@
 import { listOrder, getOrder, delOrder, addOrder, updateOrder, createOrder, payOrder, generateToken, cancelOrder, commitOrder, getRoleInfo}from "@/api/order/order";
 export default {
   name: "Order",
+  dicts: ['sys_order_status', 'sys_yes_on'],
   data() {
     return {
       // 遮罩层
@@ -215,6 +210,7 @@ export default {
         count: null,
         status: null,
         code: null,
+        pId:null,
         score: null
       },
       // 表单参数
@@ -290,7 +286,7 @@ export default {
       getOrder(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改用户、家政员";
+        this.title = "进行下一步操作";
       });
     },
     /** 提交按钮 */
@@ -299,7 +295,7 @@ export default {
         if (valid) {
           if (this.form.id != null) {
             updateOrder(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
+              this.$modal.msgSuccess("操作成功");
               this.open = false;
               this.getList();
             });

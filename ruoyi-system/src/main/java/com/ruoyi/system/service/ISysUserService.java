@@ -214,9 +214,9 @@ public interface ISysUserService
 
     /**
      * 用户发起审核
-     * @param startCheckRequest
+     * @param
      */
-    void startCheck(StartCheckRequest startCheckRequest);
+    void startCheck(SysUser sysUser);
 
     /**
      * 用户切换身份

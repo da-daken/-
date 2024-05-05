@@ -1,14 +1,13 @@
-package com.ruoyi.order.service;
+package com.ruoyi.system.service;
 
 import java.util.Date;
 import java.util.List;
 
 import com.ruoyi.common.core.domain.AjaxResult;
-import com.ruoyi.order.domain.AYTime;
-import com.ruoyi.order.domain.Order;
-import com.ruoyi.order.domain.OrderTime;
-import com.ruoyi.order.domain.request.CheckRequest;
-import com.ruoyi.order.domain.request.CommitRequest;
+import com.ruoyi.system.domain.AYTime;
+import com.ruoyi.system.domain.Order;
+import com.ruoyi.system.domain.OrderTime;
+import com.ruoyi.system.domain.vo.OrderVo;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,7 +34,7 @@ public interface IOrderService
      * @param order 用户、家政员
      * @return 用户、家政员集合
      */
-    public List<Order> selectOrderList(Order order);
+    public List<OrderVo> selectOrderList(Order order);
 
     /**
      * 创建订单
@@ -57,13 +56,13 @@ public interface IOrderService
 
     public int payOrder(Long id);
 
-//    /**
-//     * 修改用户、家政员
-//     *
-//     * @param order 用户、家政员
-//     * @return 结果
-//     */
-//    public int updateOrder(Order order);
+    /**
+     * 修改用户、家政员
+     *
+     * @param order 用户、家政员
+     * @return 结果
+     */
+    public int updateOrder(Order order);
 
 //    /**
 //     * 批量删除用户、家政员
@@ -90,15 +89,15 @@ public interface IOrderService
 
     /**
      * 评价订单，给订单打分
-     * @param commitRequest
+     * @param order
      */
-    void commitOrder(CommitRequest commitRequest);
+    Order commitOrder(Order order);
 
     /**
      * 核销订单
      * @param checkRequest
      */
-    void checkOrder(CheckRequest checkRequest);
+    Order checkOrder(Order order);
 
     List<AYTime> getOrderTime1(Date calDate);
 

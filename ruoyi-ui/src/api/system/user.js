@@ -86,6 +86,22 @@ export function updateUserProfile(data) {
     data: data
   })
 }
+// 切换角色
+export function trans() {
+  return request({
+    url: '/system/user/trans',
+    method: 'put'
+  })
+}
+
+// 新增工作表
+export function addWorkTime(data) {
+  return request({
+    url: '/system/time',
+    method: 'post',
+    data: data
+  })
+}
 
 // 用户密码重置
 export function updateUserPwd(oldPassword, newPassword) {

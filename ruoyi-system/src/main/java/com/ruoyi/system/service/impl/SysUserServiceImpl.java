@@ -303,6 +303,7 @@ public class SysUserServiceImpl implements ISysUserService
         userPostMapper.deleteUserPostByUserId(userId);
         // 新增用户与岗位管理
         insertUserPost(user);
+
         return userMapper.updateUser(user);
     }
 
@@ -577,17 +578,18 @@ public class SysUserServiceImpl implements ISysUserService
 
     /**
      * 用户发起审核
-     * todo 增加权限
-     * @param startCheckRequest
+     *
+     * @param
      */
     @Transactional
     @Override
-    public void startCheck(StartCheckRequest startCheckRequest) {
-        SysUser sysUser = userMapper.selectUserById(startCheckRequest.getUserId());
-        SysUserRole userRole = userRoleMapper.selectUserRoleById(startCheckRequest.getUserId());
+    public void startCheck(SysUser sysUser) {
+
+        SysUserRole userRole = userRoleMapper.selectUserRoleById(sysUser.getUserId());
+
         // 普通用户才能发起审核
         if (userRole.getRoleId() == UserConstants.COMMON){
-            sysUser.setCheckInfo(startCheckRequest.getCheckInfo());
+            sysUser.setCheckInfo(sysUser.getCheckInfo());
             sysUser.setCheckStatus(CheckStatus.WAIT_CHECK.getCode());
             userMapper.updateUser(sysUser);
         } else {
@@ -607,7 +609,7 @@ public class SysUserServiceImpl implements ISysUserService
         // 判断是否拥有家政员身份
         SysUser sysUser = userMapper.selectUserById(userId);
         if (sysUser.getCheckStatus() == null || Objects.equals(CheckStatus.WAIT_CHECK.getCode(), sysUser.getCheckStatus()) || Objects.equals(CheckStatus.CHECK_FAILURE.getCode(), sysUser.getCheckStatus())){
-            return ;
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "还未取得家政员身份");
         }
 
         SysUserRole userRole = userRoleMapper.selectUserRoleById(userId);

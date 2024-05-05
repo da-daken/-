@@ -1,7 +1,13 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import com.ruoyi.common.enums.OrderStatus;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.system.domain.Order;
+import com.ruoyi.system.mapper.OrderMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.ProductMapper;
@@ -19,6 +25,9 @@ public class ProductServiceImpl implements IProductService
 {
     @Autowired
     private ProductMapper productMapper;
+
+    @Autowired
+    private OrderMapper orderMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -39,9 +48,30 @@ public class ProductServiceImpl implements IProductService
      * @return 【请填写功能名称】
      */
     @Override
-    public List<Product> selectProductList(Product product)
-    {
-        return productMapper.selectProductList(product);
+    public List<Product> selectProductList(Product product) {
+        if (SecurityUtils.getUserId() != 1L) {
+            product.setUserId(SecurityUtils.getUserId());
+        }
+        List<Product> productList = productMapper.selectProductList(product);
+        productList = productList.stream().map(product1 -> {
+            // 计算得分
+            Order order = new Order();
+            order.setbId(product1.getUserId());
+            order.setStatus(OrderStatus.COMMIT.getCode());
+            order.setpId(product1.getId());
+            List<Order> orderList = orderMapper.selectOrderList(order);
+            if (orderList.isEmpty()){
+                product1.setScore(0L);
+            } else {
+                long tmp = 0L;
+                for (Order order1 : orderList) {
+                    tmp += order1.getScore();
+                }
+                product1.setScore(tmp / orderList.size());
+            }
+            return product1;
+        }).collect(Collectors.toList());
+        return productList;
     }
 
     /**

@@ -23,12 +23,8 @@
                 <svg-icon icon-class="email" />用户邮箱
                 <div class="pull-right">{{ user.email }}</div>
               </li>
-<!--              <li class="list-group-item">-->
-<!--                <svg-icon icon-class="tree" />所属部门-->
-<!--                <div class="pull-right" v-if="user.dept">{{ user.dept.deptName }} / {{ postGroup }}</div>-->
-<!--              </li>-->
               <li class="list-group-item">
-                <svg-icon icon-class="peoples" />所属角色
+                <svg-icon icon-class="peoples" />当前角色
                 <div class="pull-right">{{ roleGroup }}</div>
               </li>
               <li class="list-group-item">
@@ -36,6 +32,11 @@
                 <div class="pull-right">{{ user.createTime }}</div>
               </li>
             </ul>
+          </div>
+          <div>
+            <el-button type="primary" size="mini" @click="trans">
+              切换角色
+            </el-button>
           </div>
         </el-card>
       </el-col>
@@ -51,6 +52,10 @@
             <el-tab-pane label="修改密码" name="resetPwd">
               <resetPwd />
             </el-tab-pane>
+
+            <el-tab-pane label="设置/查看自己的工作时间" name="setWorkTime" v-if="this.$store.state.user.roles.at(0) === 'service'">
+              <setWorkTime />
+            </el-tab-pane>
           </el-tabs>
         </el-card>
       </el-col>
@@ -62,11 +67,12 @@
 import userAvatar from "./userAvatar";
 import userInfo from "./userInfo";
 import resetPwd from "./resetPwd";
-import { getUserProfile } from "@/api/system/user";
+import { getUserProfile, trans } from "@/api/system/user";
+import SetWorkTime from "./setWorkTime";
 
 export default {
   name: "Profile",
-  components: { userAvatar, userInfo, resetPwd },
+  components: {SetWorkTime, userAvatar, userInfo, resetPwd },
   data() {
     return {
       user: {},
@@ -85,6 +91,20 @@ export default {
         this.roleGroup = response.roleGroup;
         this.postGroup = response.postGroup;
       });
+    },
+    trans() {
+      trans().then(response => {
+        this.$confirm('确定切换角色并退出系统吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$store.dispatch('LogOut').then(() => {
+            location.href = '/index';
+          })
+        }).catch(() => {});
+      })
+
     }
   }
 };

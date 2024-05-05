@@ -1,13 +1,22 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="服务类型id" prop="typeId">
-        <el-input
+      <el-form-item label="服务类型" prop="typeId">
+        <el-select
           v-model="queryParams.typeId"
-          placeholder="请输入服务类型id"
+          placeholder="用户审核状态"
           clearable
+          style="width: 240px"
           @keyup.enter.native="handleQuery"
-        />
+        >
+          <el-option
+            v-for="dict in dict.type.sys_product_type"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
+
       </el-form-item>
       <el-form-item label="单价" prop="singelPrice">
         <el-input
@@ -22,81 +31,37 @@
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
+    <a-list :grid="{ gutter: 16, column: 4 }" :data-source="productList">
+      <a-list-item slot="renderItem" slot-scope="item, index">
+        <a-card :title="item.productName">
+          <div>
+            <img
+              slot="extra"
+              width="272"
+              alt="logo"
+              src=""
+            />
+          </div>
+          <div>
+            家政员姓名 ：{{ item.username }}
+          </div>
+          <div>
+            服务详情 ：{{ item.content }}
+          </div>
+          <div>
+            单价 ：{{ item.singelPrice }} 元/平方米
+          </div>
+          <div>
+            该家政员服务评分 ：{{ item.score }}
+          </div>
+          <div>
+            <a-button type="primary" @click="handleAdd(item)" >立即预约</a-button>
+          </div>
+        </a-card>
+      </a-list-item>
+    </a-list>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['system:product:add']"
-        >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['system:product:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['system:product:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="mini"
-          @click="handleExport"
-          v-hasPermi="['system:product:export']"
-        >导出</el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
 
-    <el-table v-loading="loading" :data="productList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键id" align="center" prop="id" />
-      <el-table-column label="提供该服务的家政员id" align="center" prop="userId" />
-      <el-table-column label="服务类型id" align="center" prop="typeId" />
-      <el-table-column label="阿姨展示图片" align="center" prop="img" />
-      <el-table-column label="服务详情" align="center" prop="content" />
-      <el-table-column label="单价" align="center" prop="singelPrice" />
-      <el-table-column label="该家政员在此服务的得分" align="center" prop="score" />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:product:edit']"
-          >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['system:product:remove']"
-          >删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
 
     <pagination
       v-show="total>0"
@@ -109,17 +74,11 @@
     <!-- 添加或修改【请填写功能名称】对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="服务类型id" prop="typeId">
-          <el-input v-model="form.typeId" placeholder="请输入服务类型id" />
-        </el-form-item>
-        <el-form-item label="阿姨展示图片" prop="img">
-          <el-input v-model="form.img" placeholder="请输入阿姨展示图片" />
-        </el-form-item>
-        <el-form-item label="服务详情">
-          <editor v-model="form.content" :min-height="192"/>
-        </el-form-item>
         <el-form-item label="单价" prop="singelPrice">
           <el-input v-model="form.singelPrice" placeholder="请输入单价" />
+        </el-form-item>
+        <el-form-item label="数量" prop="typeId">
+          <el-input v-model="form.counts" placeholder="需要的数量" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -131,10 +90,13 @@
 </template>
 
 <script>
-import { listProduct, getProduct, delProduct, addProduct, updateProduct } from "@/api/system/product";
+import {getProduct, delProduct, addProduct, updateProduct, listProductForRe, getInfoForRe} from "@/api/system/product";
+import 'ant-design-vue/dist/antd'
+import {createOrder} from "@/api/order/order";
 
 export default {
   name: "Product",
+  dicts: ['sys_product_type'],
   data() {
     return {
       // 遮罩层
@@ -169,6 +131,7 @@ export default {
       },
       // 表单参数
       form: {},
+      request: {},
       // 表单校验
       rules: {
       }
@@ -181,7 +144,7 @@ export default {
     /** 查询【请填写功能名称】列表 */
     getList() {
       this.loading = true;
-      listProduct(this.queryParams).then(response => {
+      listProductForRe(this.queryParams).then(response => {
         this.productList = response.rows;
         this.total = response.total;
         this.loading = false;
@@ -196,15 +159,13 @@ export default {
     reset() {
       this.form = {
         id: null,
-        userId: null,
-        typeId: null,
-        img: null,
-        content: null,
-        singelPrice: null,
-        count: null,
-        score: null,
-        createTime: null,
-        updateTime: null,
+        pId: null,
+        bId: null,
+        cId: null,
+        productId: null,
+        counts: null,
+        startTime: null,
+        endTime: null,
         isDeleted: null
       };
       this.resetForm("form");
@@ -226,10 +187,14 @@ export default {
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */
-    handleAdd() {
+    handleAdd(item) {
       this.reset();
-      this.open = true;
-      this.title = "添加【请填写功能名称】";
+      getInfoForRe(item.id).then(response => {
+        this.form = response.data;
+        console.log(this.form)
+        this.open = true;
+        this.title = "立即预约";
+      });
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -245,17 +210,25 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.id != null) {
-            this.form.userId = this.$store.state.user.id;
+          if (this.form.id == null) {
+            this.form.cId = this.$store.state.user.id;
             updateProduct(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            this.form.userId = this.$store.state.user.id;
-            addProduct(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
+            this.request = {
+              pId: this.form.id,
+              bId: this.form.userId,
+              cId: this.$store.state.user.id,
+              productId: this.form.typeId,
+              startTime: this.form.startTime,
+              endTime: this.form.endTime,
+              counts: this.form.counts
+            }
+            createOrder(this.request).then(response => {
+              this.$modal.msgSuccess("预约成功");
               this.open = false;
               this.getList();
             });

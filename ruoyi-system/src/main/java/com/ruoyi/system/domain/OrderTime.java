@@ -1,4 +1,4 @@
-package com.ruoyi.order.domain;
+package com.ruoyi.system.domain;
 
 import java.util.Date;
 

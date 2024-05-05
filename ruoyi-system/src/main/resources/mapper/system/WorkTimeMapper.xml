@@ -7,7 +7,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="WorkTime" id="WorkTimeResult">
         <result property="id"    column="id"    />
         <result property="bId"    column="b_id"    />
-        <result property="pId"    column="p_id"    />
         <result property="mon"    column="mon"    />
         <result property="tues"    column="tues"    />
         <result property="wed"    column="wed"    />
@@ -18,14 +17,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectWorkTimeVo">
-        select id, b_id, p_id, mon, tues, wed, thur, fri, sat, sun from work_time
+        select id, b_id, mon, tues, wed, thur, fri, sat, sun from work_time
     </sql>
 
     <select id="selectWorkTimeList" parameterType="WorkTime" resultMap="WorkTimeResult">
         <include refid="selectWorkTimeVo"/>
         <where>  
             <if test="bId != null "> and b_id = #{bId}</if>
-            <if test="pId != null "> and p_id = #{pId}</if>
             <if test="mon != null  and mon != ''"> and mon = #{mon}</if>
             <if test="tues != null  and tues != ''"> and tues = #{tues}</if>
             <if test="wed != null  and wed != ''"> and wed = #{wed}</if>
@@ -38,14 +36,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <select id="selectWorkTimeById" parameterType="Long" resultMap="WorkTimeResult">
         <include refid="selectWorkTimeVo"/>
-        where bId = #{b_id}
+        where b_id = #{bId}
     </select>
         
     <insert id="insertWorkTime" parameterType="WorkTime" useGeneratedKeys="true" keyProperty="id">
         insert into work_time
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="bId != null">b_id,</if>
-            <if test="pId != null">p_id,</if>
             <if test="mon != null and mon != ''">mon,</if>
             <if test="tues != null">tues,</if>
             <if test="wed != null">wed,</if>
@@ -56,7 +53,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="bId != null">#{bId},</if>
-            <if test="pId != null">#{pId},</if>
             <if test="mon != null and mon != ''">#{mon},</if>
             <if test="tues != null">#{tues},</if>
             <if test="wed != null">#{wed},</if>
@@ -71,7 +67,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update work_time
         <trim prefix="SET" suffixOverrides=",">
             <if test="bId != null">b_id = #{bId},</if>
-            <if test="pId != null">p_id = #{pId},</if>
             <if test="mon != null and mon != ''">mon = #{mon},</if>
             <if test="tues != null">tues = #{tues},</if>
             <if test="wed != null">wed = #{wed},</if>

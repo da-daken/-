@@ -2,10 +2,11 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ruoyi.order.mapper.OrderMapper">
+<mapper namespace="com.ruoyi.system.mapper.OrderMapper">
     
     <resultMap type="Order" id="OrderResult">
         <result property="id"    column="id"    />
+        <result property="pId"    column="p_id"    />
         <result property="bId"    column="b_id"    />
         <result property="cId"    column="c_id"    />
         <result property="productId"    column="product_id"    />
@@ -20,7 +21,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectOrderVo">
-        select id, b_id, c_id, product_id, date_time, start_time, end_time, counts, create_time, status, code, score from orderInfo
+        select id, p_id, b_id, c_id, product_id, date_time, start_time, end_time, counts, create_time, status, code, score from orderInfo
     </sql>
 
     <select id="selectOrderList" parameterType="Order" resultMap="OrderResult">
@@ -35,6 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="counts != null "> and counts = #{counts}</if>
             <if test="status != null "> and status = #{status}</if>
             <if test="code != null  and code != ''"> and code = #{code}</if>
+            <if test="pId != null  and pId != ''"> and p_id = #{pId}</if>
             <if test="score != null "> and score = #{score}</if>
         </where>
     </select>
@@ -44,10 +46,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </select>
 
-    <select id="getOrderTime" resultType="com.ruoyi.order.domain.OrderTime">
+    <select id="getOrderTime" resultType="com.ruoyi.system.domain.OrderTime">
         select start_time, end_time
         from orderinfo
         where CAST(start_time AS DATE) = CAST(#{calDate} AS DATE) and (status = 1 or status = 0)
+    </select>
+
+    <select id="topGoldenService" resultType="com.ruoyi.system.domain.OrderTop">
+        select p_id, b_id, avg(score) as avg_score
+        from orderinfo
+        where status = 4
+        group by p_id, b_id
+        order by avg_score desc
+    </select>
+
+    <select id="hotService" resultType="com.ruoyi.system.domain.OrderHot">
+        select product_id, month(CAST(start_time AS DATE)) as month, count(*) as sum
+        from orderinfo
+        where status != 2 and year(start_time) = year(CAST(#{year} AS DATE))
+        group by product_id, month
+        order by month asc
     </select>
 
     <insert id="insertOrder" parameterType="Order">
@@ -64,6 +82,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">create_time,</if>
             <if test="status != null">status,</if>
             <if test="code != null">code,</if>
+            <if test="pId != null">pId,</if>
             <if test="score != null">score,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -78,6 +97,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">#{createTime},</if>
             <if test="status != null">#{status},</if>
             <if test="code != null">#{code},</if>
+            <if test="pId != null">#{pId},</if>
             <if test="score != null">#{score},</if>
          </trim>
     </insert>

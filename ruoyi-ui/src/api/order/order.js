@@ -106,3 +106,20 @@ export function getRoleInfo(userId) {
   })
 }
 
+
+// hotService
+export async function hotService(data) {
+  return request({
+    url: '/data/hotService',
+    method: 'post',
+    data: data
+  })
+}
+
+// goldenService
+export function goldenService() {
+  return request({
+    url: '/data/goldenService',
+    method: 'get'
+  })
+}

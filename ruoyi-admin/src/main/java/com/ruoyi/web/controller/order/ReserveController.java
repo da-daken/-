@@ -1,9 +1,9 @@
 package com.ruoyi.web.controller.order;
 
 import com.ruoyi.common.core.domain.AjaxResult;
-import com.ruoyi.order.domain.EnableTime;
-import com.ruoyi.order.domain.request.EnableTimeRequest;
-import com.ruoyi.order.service.ReserveService;
+import com.ruoyi.system.domain.EnableTime;
+import com.ruoyi.system.domain.request.EnableTimeRequest;
+import com.ruoyi.system.service.ReserveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

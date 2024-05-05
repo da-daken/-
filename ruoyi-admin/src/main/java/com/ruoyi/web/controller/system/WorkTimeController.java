@@ -34,36 +34,32 @@ public class WorkTimeController extends BaseController
     @Autowired
     private IWorkTimeService workTimeService;
 
-    /**
-     * 查询【请填写功能名称】列表
-     */
-    @PreAuthorize("@ss.hasPermi('system:time:list')")
-    @GetMapping("/list")
-    public TableDataInfo list(WorkTime workTime)
-    {
-        startPage();
-        List<WorkTime> list = workTimeService.selectWorkTimeList(workTime);
-        return getDataTable(list);
-    }
+//    /**
+//     * 查询【请填写功能名称】列表
+//     */
+//    @PreAuthorize("@ss.hasPermi('system:time:list')")
+//    @GetMapping("/list")
+//    public TableDataInfo list(WorkTime workTime)
+//    {
+//        startPage();
+//        List<WorkTime> list = workTimeService.selectWorkTimeList(workTime);
+//        return getDataTable(list);
+//    }
 
     /**
      * 获取【请填写功能名称】详细信息
      */
-    @PreAuthorize("@ss.hasPermi('system:time:query')")
     @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
-    {
+    public AjaxResult getInfo(@PathVariable("id") Long id) {
         return success(workTimeService.selectWorkTimeByBId(id));
     }
 
     /**
      * 新增【请填写功能名称】
      */
-    @PreAuthorize("@ss.hasPermi('system:time:add')")
     @Log(title = "【请填写功能名称】", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody WorkTime workTime)
-    {
+    public AjaxResult add(@RequestBody WorkTime workTime) {
         return toAjax(workTimeService.insertWorkTime(workTime));
     }
 
@@ -78,14 +74,14 @@ public class WorkTimeController extends BaseController
         return toAjax(workTimeService.updateWorkTime(workTime));
     }
 
-    /**
-     * 删除【请填写功能名称】
-     */
-    @PreAuthorize("@ss.hasPermi('system:time:remove')")
-    @Log(title = "【请填写功能名称】", businessType = BusinessType.DELETE)
-	@DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
-    {
-        return toAjax(workTimeService.deleteWorkTimeByIds(ids));
-    }
+//    /**
+//     * 删除【请填写功能名称】
+//     */
+//    @PreAuthorize("@ss.hasPermi('system:time:remove')")
+//    @Log(title = "【请填写功能名称】", businessType = BusinessType.DELETE)
+//	@DeleteMapping("/{ids}")
+//    public AjaxResult remove(@PathVariable Long[] ids)
+//    {
+//        return toAjax(workTimeService.deleteWorkTimeByIds(ids));
+//    }
 }

@@ -1,8 +1,8 @@
 package com.ruoyi;
 
-import com.ruoyi.order.domain.Order;
-import com.ruoyi.order.mapper.OrderMapper;
-import com.ruoyi.order.publisher.RocketMqPublisher;
+import com.ruoyi.system.domain.Order;
+import com.ruoyi.system.mapper.OrderMapper;
+import com.ruoyi.system.publisher.RocketMqPublisher;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

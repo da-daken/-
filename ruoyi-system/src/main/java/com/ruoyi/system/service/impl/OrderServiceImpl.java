@@ -1,4 +1,4 @@
-package com.ruoyi.order.service.impl;
+package com.ruoyi.system.service.impl;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -8,28 +8,34 @@ import java.util.stream.Collectors;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.pagehelper.PageHelper;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.enums.OrderStatus;
 import com.ruoyi.common.exception.BusinessException;
 import com.ruoyi.common.exception.ErrorCode;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.PageUtils;
 import com.ruoyi.common.utils.SecurityUtils;
-import com.ruoyi.order.domain.AYTime;
-import com.ruoyi.order.domain.OrderTime;
-import com.ruoyi.order.domain.request.CheckRequest;
-import com.ruoyi.order.domain.request.CommitRequest;
-import com.ruoyi.order.publisher.RocketMqPublisher;
+import com.ruoyi.common.utils.bean.BeanCopyUtils;
+import com.ruoyi.system.domain.AYTime;
+import com.ruoyi.system.domain.OrderTime;
+import com.ruoyi.system.domain.vo.OrderVo;
+import com.ruoyi.system.mapper.OrderMapper;
+import com.ruoyi.system.publisher.RocketMqPublisher;
+import com.ruoyi.system.domain.Product;
+import com.ruoyi.system.mapper.ProductMapper;
 import com.ruoyi.system.mapper.SysUserRoleMapper;
+import com.ruoyi.system.service.IOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import com.ruoyi.order.mapper.OrderMapper;
-import com.ruoyi.order.domain.Order;
-import com.ruoyi.order.service.IOrderService;
+
+import com.ruoyi.system.domain.Order;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 
@@ -61,6 +67,9 @@ public class OrderServiceImpl implements IOrderService {
     @Autowired
     private SysUserRoleMapper sysUserRoleMapper;
 
+    @Autowired
+    private ProductMapper productMapper;
+
     private final SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("yyyy:MM:dd");
     private final SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("HH:mm");
 
@@ -86,9 +95,18 @@ public class OrderServiceImpl implements IOrderService {
      * @return 用户、家政员
      */
     @Override
-    public List<Order> selectOrderList(Order order)
-    {
-        return orderMapper.selectOrderList(order);
+    public List<OrderVo> selectOrderList(Order order) {
+
+        List<Order> orderList = orderMapper.selectOrderList(order);
+        List<OrderVo> orderVoList = orderList.stream().map(order1 -> {
+            PageUtils.startPage();
+            Product product = productMapper.selectProductById(order1.getpId());
+            OrderVo orderVo = BeanCopyUtils.copyBean(order1, OrderVo.class);
+            orderVo.setTotalPrice(String.valueOf(order1.getCount() * product.getSingelPrice()));
+            return orderVo;
+        }).collect(Collectors.toList());
+
+        return orderVoList;
     }
 
 
@@ -111,7 +129,8 @@ public class OrderServiceImpl implements IOrderService {
         Long userId = order.getcId();
         Long productId = order.getProductId();
         Long count = order.getCount();
-        if (null == userId || null == productId || null == count){
+        Long bId = order.getbId();
+        if (null == userId || null == productId || null == count || null == bId){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
 
@@ -136,10 +155,9 @@ public class OrderServiceImpl implements IOrderService {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "该时间区间已经被占用，请刷新查看！");
         }
 
-        // 5. 生成订单
+        // 5. 生成订单（在支付完订单后再生成核销码）
         order.setId(generateOrderSn(userId));
         order.setStatus(OrderStatus.NO_PAY.getCode());
-        order.setCode(generateVfCode());
         order.setCreateTime(DateUtils.getNowDate());
         try {
              // 发送一个定时任务，5分钟自动取消订单
@@ -268,6 +286,8 @@ public class OrderServiceImpl implements IOrderService {
                     if (Objects.equals(OrderStatus.NO_PAY.getCode(), order.getStatus())){
                         redisTemplate.opsForValue().set("order:pay" + id, id);
                         order.setStatus(OrderStatus.PAY.getCode());
+                        // 在支付完订单后 生成核验码
+                        order.setCode(generateVfCode());
                         return orderMapper.updateOrder(order);
                     } else {
                         throw new BusinessException(ErrorCode.SYSTEM_ERROR, "订单状态异常，请刷新");
@@ -277,7 +297,9 @@ public class OrderServiceImpl implements IOrderService {
             } catch (InterruptedException e){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR);
             } finally {
-                lock.unlock();
+                if (lock.isHeldByCurrentThread()) {
+                    lock.unlock();
+                }
             }
         }
 
@@ -339,24 +361,40 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     /**
-     * 评价订单，给订单打分
-     * 只有待评价状态才能评价打分
+     * 修改订单（校验，打分）
      *
-     * @param commitRequest
+     * @param order 用户、家政员
+     * @return 结果
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void commitOrder(CommitRequest commitRequest) {
+    public int updateOrder(Order order) {
+        if (OrderStatus.PAY.getCode().equals(order.getStatus())){
+            order = checkOrder(order);
+        }
+        else if (OrderStatus.NO_COMMIT.getCode().equals(order.getStatus())){
+            order = commitOrder(order);
+        }
+        return orderMapper.updateOrder(order);
+    }
+
+    /**
+     * 评价订单，给订单打分
+     * 只有待评价状态才能评价打分
+     *
+     * @param order
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Order commitOrder(Order order) {
         // 和定时消息抢锁，防止在评价过程中被定时消息覆盖
-        RLock lock = redissonClient.getLock("commit:lock" + commitRequest.getId());
+        RLock lock = redissonClient.getLock("commit:lock" + order.getId());
         try {
             if (lock.tryLock(80, -1, TimeUnit.MILLISECONDS)){
                 // 抢到锁
-                // 是待待评价状态才能评价
-                Order order = orderMapper.selectOrderById(commitRequest.getId());
+                // 是待评价状态才能评价
                 if (Objects.equals(OrderStatus.NO_COMMIT.getCode(), order.getStatus())){
                     order.setStatus(OrderStatus.COMMIT.getCode());
-                    order.setScore(commitRequest.getScore());
                     orderMapper.updateOrder(order);
                 } else {
                     throw new BusinessException(ErrorCode.SYSTEM_ERROR, "订单状态异常，请刷新");
@@ -366,38 +404,40 @@ public class OrderServiceImpl implements IOrderService {
         } catch (InterruptedException e){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
         } finally {
-            lock.unlock();
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
         }
-
+        return order;
     }
 
     /**
      * 核销订单
      * 只有已支付状态才能核销
      *
-     * @param checkRequest
+     * @param newOrder
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public void checkOrder(CheckRequest checkRequest) {
-
-        Order order = orderMapper.selectOrderById(checkRequest.getId());
-
+    public Order checkOrder(Order newOrder) {
+        Order oldOrder = orderMapper.selectOrderById(newOrder.getId());
         // 只有已支付状态才能核销
-        if (Objects.equals(OrderStatus.PAY.getCode(), order.getStatus())){
-            if (order.getCode().equals(checkRequest.getCode())){
-                order.setStatus(OrderStatus.NO_PAY.getCode());
-                orderMapper.updateOrder(order);
+        if (Objects.equals(OrderStatus.PAY.getCode(), oldOrder.getStatus())){
+            if (oldOrder.getCode().equals(newOrder.getCode())){
+                oldOrder.setStatus(OrderStatus.NO_COMMIT.getCode());
+                orderMapper.updateOrder(oldOrder);
 
                 // 发送一个2天内未评价自动评价为满分的定时消息
 
-                rocketMqPublisher.sendOrderTenInfo(order);
+                rocketMqPublisher.sendOrderTenInfo(oldOrder);
+                log.info("发送自动评价消息 订单 {}", oldOrder.getId());
             } else {
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "订单核销码错误");
             }
         } else {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "订单状态异常，请刷新");
         }
+        return oldOrder;
     }
 
     /**
@@ -433,18 +473,6 @@ public class OrderServiceImpl implements IOrderService {
     }
 
 
-
-//    /**
-//     * 修改用户、家政员
-//     *
-//     * @param order 用户、家政员
-//     * @return 结果
-//     */
-//    @Override
-//    public int updateOrder(Order order)
-//    {
-//        return orderMapper.updateOrder(order);
-//    }
 
 //    /**
 //     * 批量删除用户、家政员

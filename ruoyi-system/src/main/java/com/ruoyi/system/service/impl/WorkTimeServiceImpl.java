@@ -1,6 +1,9 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+
+import com.ruoyi.common.exception.BusinessException;
+import com.ruoyi.common.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.WorkTimeMapper;
@@ -26,8 +29,7 @@ public class WorkTimeServiceImpl implements IWorkTimeService
      * @return 【请填写功能名称】
      */
     @Override
-    public WorkTime selectWorkTimeByBId(Long bId)
-    {
+    public WorkTime selectWorkTimeByBId(Long bId) {
         return workTimeMapper.selectWorkTimeById(bId);
     }
 
@@ -44,19 +46,22 @@ public class WorkTimeServiceImpl implements IWorkTimeService
     }
 
     /**
-     * 新增【请填写功能名称】
+     * 创建工作时间表
      * 
      * @param workTime 【请填写功能名称】
      * @return 结果
      */
     @Override
-    public int insertWorkTime(WorkTime workTime)
-    {
+    public int insertWorkTime(WorkTime workTime) {
+        WorkTime workTime1 = workTimeMapper.selectWorkTimeById(workTime.getbId());
+        if(workTime1 != null){
+            return updateWorkTime(workTime);
+        }
         return workTimeMapper.insertWorkTime(workTime);
     }
 
     /**
-     * 修改【请填写功能名称】
+     * 修改工作时间
      * 
      * @param workTime 【请填写功能名称】
      * @return 结果

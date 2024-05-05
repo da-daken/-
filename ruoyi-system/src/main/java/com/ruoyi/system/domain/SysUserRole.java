@@ -8,8 +8,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * 
  * @author ruoyi
  */
-public class SysUserRole
-{
+public class SysUserRole {
     /** 用户ID */
     private Long userId;
     

@@ -47,7 +47,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="img != null">img,</if>
             <if test="content != null">content,</if>
             <if test="singelPrice != null">singel_price,</if>
-            <if test="count != null">count,</if>
             <if test="score != null">score,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateTime != null">update_time,</if>

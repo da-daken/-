@@ -23,7 +23,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	    select count(1) from sys_user_role where role_id=#{roleId}  
 	</select>
 
-	<select id="selectUserRoleById" resultType="com.ruoyi.system.domain.SysUserRole">
+	<select id="selectUserRoleById" parameterType="Long" resultMap="SysUserRoleResult">
 		select user_id, role_id
 		from sys_user_role
 		where user_id = #{userId}

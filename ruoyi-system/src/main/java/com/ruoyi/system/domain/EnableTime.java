@@ -1,6 +1,4 @@
-package com.ruoyi.order.domain;
-
-import java.util.Date;
+package com.ruoyi.system.domain;
 
 /**
  * @author daken

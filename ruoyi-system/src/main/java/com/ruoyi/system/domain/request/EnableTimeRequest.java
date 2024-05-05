@@ -1,4 +1,4 @@
-package com.ruoyi.order.domain.request;
+package com.ruoyi.system.domain.request;
 
 import java.io.Serializable;
 import java.util.Date;

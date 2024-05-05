@@ -1,13 +1,13 @@
-package com.ruoyi.order.service.impl;
+package com.ruoyi.system.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
-import com.ruoyi.order.domain.AYTime;
-import com.ruoyi.order.domain.EnableTime;
-import com.ruoyi.order.domain.OrderTime;
-import com.ruoyi.order.service.IOrderService;
-import com.ruoyi.order.service.ReserveService;
+import com.ruoyi.system.domain.AYTime;
+import com.ruoyi.system.domain.EnableTime;
 import com.ruoyi.system.domain.WorkTime;
+import com.ruoyi.system.service.IOrderService;
 import com.ruoyi.system.service.IWorkTimeService;
+import com.ruoyi.system.service.ReserveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -135,29 +135,31 @@ public class ReserveServiceImpl implements ReserveService {
         calendar.setTime(date);
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
         List<AYTime> ayTimeList = new ArrayList<>();
+        AYTime ayTime = new AYTime();
         switch (dayOfWeek) {
             case 0 :
-                ayTimeList = JSONArray.parseArray(workTime.getSun(), AYTime.class);
+                ayTime = JSON.parseObject(workTime.getSun(), AYTime.class);
                 break;
             case 1 :
-                ayTimeList = JSONArray.parseArray(workTime.getMon(), AYTime.class);
+                ayTime = JSON.parseObject(workTime.getMon(), AYTime.class);
                 break;
             case 2 :
-                ayTimeList = JSONArray.parseArray(workTime.getTues(), AYTime.class);
+                ayTime = JSON.parseObject(workTime.getTues(), AYTime.class);
                 break;
             case 3 :
-                ayTimeList = JSONArray.parseArray(workTime.getWed(), AYTime.class);
+                ayTime = JSON.parseObject(workTime.getWed(), AYTime.class);
                 break;
             case 4 :
-                ayTimeList = JSONArray.parseArray(workTime.getThur(), AYTime.class);
+                ayTime = JSON.parseObject(workTime.getThur(), AYTime.class);
                 break;
             case 5 :
-                ayTimeList = JSONArray.parseArray(workTime.getFri(), AYTime.class);
+                ayTime = JSON.parseObject(workTime.getFri(), AYTime.class);
                 break;
             case 6 :
-                ayTimeList = JSONArray.parseArray(workTime.getSat(), AYTime.class);
+                ayTime = JSON.parseObject(workTime.getSat(), AYTime.class);
                 break;
         }
+        ayTimeList.add(ayTime);
         return ayTimeList;
     }
 

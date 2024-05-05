@@ -1,13 +1,12 @@
-package com.ruoyi.order.listener;
+package com.ruoyi.system.listener;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.ruoyi.common.enums.OrderStatus;
 import com.ruoyi.common.exception.BusinessException;
 import com.ruoyi.common.exception.ErrorCode;
-import com.ruoyi.order.domain.Order;
-import com.ruoyi.order.mapper.OrderMapper;
-import com.ruoyi.order.service.IOrderService;
+import com.ruoyi.system.domain.Order;
+import com.ruoyi.system.mapper.OrderMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.spring.annotation.ConsumeMode;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
@@ -15,7 +14,6 @@ import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -45,7 +43,7 @@ public class OrderDelayListener implements RocketMQListener<String> {
             return ;
         }
         Order order = JSON.parseObject(s, Order.class);
-        log.info("收到信息{}", order.getId());
+        log.info("收到定时取消信息 {}", order.getId());
         // 1. 检查订单状态
         if (Objects.equals(OrderStatus.NO_PAY.getCode(), order.getStatus())) {
             // 2. 和支付动作抢锁
@@ -58,12 +56,15 @@ public class OrderDelayListener implements RocketMQListener<String> {
                     log.info("收到未支付订单 {} , 现将其取消！", order.getId());
                 }
             } catch (InterruptedException e){
-                throw new BusinessException(ErrorCode.SYSTEM_ERROR);
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR, e.getMessage());
             } finally {
-                lock.unlock();
+                if (lock.isHeldByCurrentThread()) {
+                    lock.unlock();
+                }
             }
+        } else {
+            log.info("该订单状态已改变，不用取消订单 {}", order.getId());
         }
-
 
     }
 }

@@ -1,9 +1,11 @@
-package com.ruoyi.order.mapper;
+package com.ruoyi.system.mapper;
 
 import java.util.Date;
 import java.util.List;
-import com.ruoyi.order.domain.Order;
-import com.ruoyi.order.domain.OrderTime;
+import com.ruoyi.system.domain.Order;
+import com.ruoyi.system.domain.OrderHot;
+import com.ruoyi.system.domain.OrderTime;
+import com.ruoyi.system.domain.OrderTop;
 
 /**
  * 用户、家政员Mapper接口
@@ -67,4 +69,8 @@ public interface OrderMapper
      * @return
      */
     List<OrderTime> getOrderTime(Date calDate);
+
+    List<OrderTop> topGoldenService();
+
+    List<OrderHot> hotService(Date year);
 }

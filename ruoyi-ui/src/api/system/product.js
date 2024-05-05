@@ -8,11 +8,27 @@ export function listProduct(query) {
     params: query
   })
 }
+// 查询【请填写功能名称】列表
+export function listProductForRe(query) {
+  return request({
+    url: '/system/product/listForRe',
+    method: 'get',
+    params: query
+  })
+}
 
 // 查询【请填写功能名称】详细
 export function getProduct(id) {
   return request({
     url: '/system/product/' + id,
+    method: 'get'
+  })
+}
+
+// 查询【请填写功能名称】详细 forRe
+export function getInfoForRe(id) {
+  return request({
+    url: '/system/product/forRe/' + id,
     method: 'get'
   })
 }

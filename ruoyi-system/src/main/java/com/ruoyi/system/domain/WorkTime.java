@@ -22,9 +22,6 @@ public class WorkTime extends BaseEntity
     @Excel(name = "家政员id")
     private Long bId;
 
-    /** 服务类型id */
-    @Excel(name = "服务类型id")
-    private Long pId;
 
     /** 周一时间段JSON */
     @Excel(name = "周一时间段JSON")
@@ -72,15 +69,7 @@ public class WorkTime extends BaseEntity
     {
         return bId;
     }
-    public void setpId(Long pId) 
-    {
-        this.pId = pId;
-    }
 
-    public Long getpId() 
-    {
-        return pId;
-    }
     public void setMon(String mon) 
     {
         this.mon = mon;
@@ -150,7 +139,6 @@ public class WorkTime extends BaseEntity
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
             .append("bId", getbId())
-            .append("pId", getpId())
             .append("mon", getMon())
             .append("tues", getTues())
             .append("wed", getWed())
