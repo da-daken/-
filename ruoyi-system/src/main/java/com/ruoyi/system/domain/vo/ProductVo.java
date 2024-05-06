@@ -20,4 +20,5 @@ public class ProductVo implements Serializable {
     private String content;
     private Long singelPrice;
     private Long score;
+    private String unit;
 }

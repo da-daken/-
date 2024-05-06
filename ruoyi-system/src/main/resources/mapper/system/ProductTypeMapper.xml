@@ -10,11 +10,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="img"    column="img"    />
         <result property="content"    column="content"    />
         <result property="createTime"    column="create_time"    />
+        <result property="unit"    column="unit"    />
         <result property="isDeleted"    column="is_deleted"    />
     </resultMap>
 
     <sql id="selectProductTypeVo">
-        select id, name, img, content, create_time, is_deleted from product_type
+        select id, name, img, content, create_time, unit, is_deleted from product_type
     </sql>
 
     <select id="selectProductTypeList" parameterType="ProductType" resultMap="ProductTypeResult">
@@ -39,6 +40,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="img != null and img != ''">img,</if>
             <if test="content != null and content != ''">content,</if>
             <if test="createTime != null">create_time,</if>
+            <if test="unit != null">unit,</if>
             <if test="isDeleted != null">is_deleted,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -46,6 +48,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="img != null and img != ''">#{img},</if>
             <if test="content != null and content != ''">#{content},</if>
             <if test="createTime != null">#{createTime},</if>
+            <if test="unit != null">#{unit},</if>
             <if test="isDeleted != null">#{isDeleted},</if>
          </trim>
     </insert>
@@ -57,6 +60,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="img != null and img != ''">img = #{img},</if>
             <if test="content != null and content != ''">content = #{content},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="unit != null">unit = #{unit},</if>
             <if test="isDeleted != null">is_deleted = #{isDeleted},</if>
         </trim>
         where id = #{id}

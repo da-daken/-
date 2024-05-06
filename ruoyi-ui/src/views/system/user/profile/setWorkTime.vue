@@ -133,7 +133,7 @@
       start: '07:00',
       step: '00:30',
       end: '24:00',
-      minTime: sat.startTime
+      minTime: form.sat.startTime
     }">
         </el-time-select>
       </div>
@@ -172,7 +172,7 @@
 <script>
 
 
-import { addWorkTime } from "@/api/system/user";
+import {addWorkTime, getWorkInfo} from "@/api/system/user";
 
 export default {
   props: {
@@ -183,35 +183,37 @@ export default {
 name: "setWorkTime",
   data() {
     return {
-      form: {},
-      mon:{
-        startTime: '',
-        endTime: ''
+      form: {
+        mon: {
+          startTime: '',
+          endTime: ''
+        },
+        tues:{
+          startTime: '',
+          endTime: ''
+        },
+        wed:{
+          startTime: '',
+          endTime: ''
+        },
+        thur:{
+          startTime: '',
+          endTime: ''
+        },
+        fri:{
+          startTime: '',
+          endTime: ''
+        },
+        sat:{
+          startTime: '',
+          endTime: ''
+        },
+        sun:{
+          startTime: '',
+          endTime: ''
+        }
+
       },
-      tues:{
-        startTime: '',
-        endTime: ''
-      },
-      wed:{
-        startTime: '',
-        endTime: ''
-      },
-      thur:{
-        startTime: '',
-        endTime: ''
-      },
-      fri:{
-        startTime: '',
-        endTime: ''
-      },
-      sat:{
-        startTime: '',
-        endTime: ''
-      },
-      sun:{
-        startTime: '',
-        endTime: ''
-      }
 
     };
   },
@@ -225,15 +227,35 @@ name: "setWorkTime",
       immediate: true
     }
   },
+  async created() {
+    const resp = await getWorkInfo(this.$store.state.user.id);
+    this.form.mon = resp.data.mon === '' ? JSON.parse("{}") : JSON.parse(resp.data.mon);
+    this.form.tues = resp.data.tues === '' ? JSON.parse("{}") : JSON.parse(resp.data.tues);
+    this.form.wed = resp.data.wed === '' ? JSON.parse("{}") : JSON.parse(resp.data.wed);
+    this.form.thur = resp.data.thur === '' ? JSON.parse("{}") : JSON.parse(resp.data.thur);
+    this.form.fri = resp.data.fri === '' ? JSON.parse("{}") : JSON.parse(resp.data.fri);
+    this.form.sat = resp.data.sat === '' ? JSON.parse("{}") : JSON.parse(resp.data.sat);
+    this.form.sun = resp.data.sun === '' ? JSON.parse("{}") : JSON.parse(resp.data.sun);
+    console.log(this.form)
+    console.log(resp)
+  },
   methods: {
     submit() {
       this.$refs["form"].validate(valid => {
         if (valid) {
           console.log(this.$store.state.user.id)
           this.form.bId = this.$store.state.user.id
+          this.form.mon = JSON.stringify(this.form.mon)
+          this.form.tues = JSON.stringify(this.form.tues)
+          this.form.wed = JSON.stringify(this.form.wed)
+          this.form.thur = JSON.stringify(this.form.thur)
+          this.form.fri = JSON.stringify(this.form.fri)
+          this.form.sat = JSON.stringify(this.form.sat)
+          this.form.sun = JSON.stringify(this.form.sun)
           addWorkTime(this.form).then(response => {
             this.$modal.msgSuccess("修改成功");
           });
+          this.$router.go(0)
         }
       });
     }

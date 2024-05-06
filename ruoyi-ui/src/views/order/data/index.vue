@@ -24,11 +24,15 @@ export default {
 
   data() {
     return {
-      dataList: []
+      dataList: [],
+      sum1: [],
+      sum2: []
     }
   },
 
-  async created() {
+  // async created() {
+   created() {
+
     echarts.use([
       ToolboxComponent,
       TooltipComponent,
@@ -37,9 +41,7 @@ export default {
       BarChart,
       CanvasRenderer
     ]);
-    await this.getData()
-    console.log(this.dataList.map(item => item.sum1))
-    console.log(this.dataList.map(item => item.sum2))
+
   },
   methods: {
     async getData() {
@@ -47,7 +49,12 @@ export default {
       this.dataList = resp.data
     }
   },
-  mounted() {
+  async mounted() {
+    await this.getData()
+    this.sum1 = this.dataList.map(item => item.sum1)
+    this.sum2 = this.dataList.map(item => item.sum2)
+    console.log( this.sum1)
+    console.log(this.sum2)
     var app = {};
 
     var chartDom = document.getElementById('main');
@@ -201,7 +208,7 @@ export default {
           emphasis: {
             focus: 'series'
           },
-          data: this.dataList.map(item => item.sum1),
+          data: this.sum1,
         },
         {
           name: '擦玻璃',
@@ -210,7 +217,7 @@ export default {
           emphasis: {
             focus: 'series'
           },
-          data: this.dataList.map(item => item.sum2),
+          data: this.sum2,
         }
       ]
     };

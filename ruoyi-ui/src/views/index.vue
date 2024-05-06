@@ -52,9 +52,9 @@
               <div>
                 <img
                   slot="extra"
-                  width="272"
+                  width="200"
                   alt="logo"
-                  src=""
+                  :src= item.imgUrl
                 />
               </div>
               <div>

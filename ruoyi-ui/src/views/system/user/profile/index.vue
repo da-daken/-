@@ -69,6 +69,7 @@ import userInfo from "./userInfo";
 import resetPwd from "./resetPwd";
 import { getUserProfile, trans } from "@/api/system/user";
 import SetWorkTime from "./setWorkTime";
+import { MessageBox } from "element-ui"
 
 export default {
   name: "Profile",
@@ -94,7 +95,7 @@ export default {
     },
     trans() {
       trans().then(response => {
-        this.$confirm('确定切换角色并退出系统吗？', '提示', {
+        MessageBox.confirm('确定切换角色并退出系统吗？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'

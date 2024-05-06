@@ -74,7 +74,9 @@
       <el-table-column label="主键id" align="center" prop="id" />
       <el-table-column label="提供该服务的家政员id" align="center" prop="userId" />
       <el-table-column label="服务类型id" align="center" prop="typeId" />
-      <el-table-column label="阿姨展示图片" align="center" prop="img" />
+      <el-table-column label="阿姨展示图片" align="center" prop="img"  >
+
+      </el-table-column>
       <el-table-column label="服务详情" align="center" prop="content" />
       <el-table-column label="单价" align="center" prop="singelPrice" />
       <el-table-column label="该家政员在此服务的得分" align="center" prop="score" />

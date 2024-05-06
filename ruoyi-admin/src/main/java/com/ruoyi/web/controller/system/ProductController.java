@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.bean.BeanCopyUtils;
+import com.ruoyi.system.domain.ProductType;
 import com.ruoyi.system.domain.vo.ProductSinVo;
 import com.ruoyi.system.domain.vo.ProductVo;
 import com.ruoyi.system.mapper.ProductTypeMapper;
@@ -66,7 +67,9 @@ public class ProductController extends BaseController
         List<ProductVo> collect = productList.stream().map(product1 -> {
             ProductVo productVo = BeanCopyUtils.copyBean(product1, ProductVo.class);
             productVo.setUsername(userMapper.selectUserById(product1.getUserId()).getNickName());
-            productVo.setProductName(productTypeMapper.selectProductTypeById(product1.getTypeId()).getName());
+            ProductType productType = productTypeMapper.selectProductTypeById(product1.getTypeId());
+            productVo.setProductName(productType.getName());
+            productVo.setUnit(productType.getUnit());
             return productVo;
         }).collect(Collectors.toList());
 

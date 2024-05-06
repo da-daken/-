@@ -103,6 +103,14 @@ export function addWorkTime(data) {
   })
 }
 
+// 获取工作表
+export function getWorkInfo(id) {
+  return request({
+    url: '/system/time/' + id,
+    method: 'get'
+  })
+}
+
 // 用户密码重置
 export function updateUserPwd(oldPassword, newPassword) {
   const data = {

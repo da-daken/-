@@ -66,7 +66,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateWorkTime" parameterType="WorkTime">
         update work_time
         <trim prefix="SET" suffixOverrides=",">
-            <if test="bId != null">b_id = #{bId},</if>
             <if test="mon != null and mon != ''">mon = #{mon},</if>
             <if test="tues != null">tues = #{tues},</if>
             <if test="wed != null">wed = #{wed},</if>
@@ -75,7 +74,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="sat != null">sat = #{sat},</if>
             <if test="sun != null">sun = #{sun},</if>
         </trim>
-        where id = #{id}
+        where b_id = #{bId}
     </update>
 
     <delete id="deleteWorkTimeById" parameterType="Long">

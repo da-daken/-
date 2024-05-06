@@ -31,7 +31,7 @@
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
-    <a-list :grid="{ gutter: 16, column: 4 }" :data-source="productList">
+      <a-list :grid="{ gutter: 16, column: 4 }" :data-source="productList">
       <a-list-item slot="renderItem" slot-scope="item, index">
         <a-card :title="item.productName">
           <div>
@@ -49,7 +49,7 @@
             服务详情 ：{{ item.content }}
           </div>
           <div>
-            单价 ：{{ item.singelPrice }} 元/平方米
+            单价 ：{{ item.singelPrice }} /{{ item.unit }}
           </div>
           <div>
             该家政员服务评分 ：{{ item.score }}

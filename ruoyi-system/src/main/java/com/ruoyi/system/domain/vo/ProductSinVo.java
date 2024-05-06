@@ -11,4 +11,5 @@ public class ProductSinVo {
     private Long id;
     private Long typeId;
     private Long userId;
+    private String unit;
 }

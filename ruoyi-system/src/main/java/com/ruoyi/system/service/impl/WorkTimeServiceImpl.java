@@ -2,6 +2,7 @@ package com.ruoyi.system.service.impl;
 
 import java.util.List;
 
+import com.alibaba.fastjson.JSON;
 import com.ruoyi.common.exception.BusinessException;
 import com.ruoyi.common.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,8 +68,7 @@ public class WorkTimeServiceImpl implements IWorkTimeService
      * @return 结果
      */
     @Override
-    public int updateWorkTime(WorkTime workTime)
-    {
+    public int updateWorkTime(WorkTime workTime) {
         return workTimeMapper.updateWorkTime(workTime);
     }
 

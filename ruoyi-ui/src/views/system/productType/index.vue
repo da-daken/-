@@ -67,6 +67,7 @@
       <el-table-column label="服务类型名称" align="center" prop="name" />
       <el-table-column label="展示大图" align="center" prop="img" />
       <el-table-column label="服务详情" align="center" prop="content" />
+      <el-table-column label="单位" align="center" prop="unit" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button

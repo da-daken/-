@@ -30,6 +30,8 @@ public class ProductType extends BaseEntity
     @Excel(name = "服务详情")
     private String content;
 
+    private String unit;
+
     /** 是否被删除 */
     @Excel(name = "是否被删除")
     private Integer isDeleted;
@@ -90,5 +92,13 @@ public class ProductType extends BaseEntity
             .append("createTime", getCreateTime())
             .append("isDeleted", getIsDeleted())
             .toString();
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 }
