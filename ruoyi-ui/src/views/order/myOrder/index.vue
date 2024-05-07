@@ -211,7 +211,8 @@ export default {
         status: null,
         code: null,
         pId:null,
-        score: null
+        score: null,
+        roleId: null
       },
       // 表单参数
       form: {},
@@ -227,6 +228,7 @@ export default {
     /** 查询用户、家政员列表 */
     getList() {
       this.loading = true;
+      this.queryParams.roleId = this.$store.state.user.roleId
       listOrder(this.queryParams).then(response => {
         this.orderList = response.rows;
         this.total = response.total;

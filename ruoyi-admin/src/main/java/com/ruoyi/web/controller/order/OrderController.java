@@ -5,10 +5,12 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.utils.PageUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.bean.BeanCopyUtils;
 import com.ruoyi.system.domain.Product;
+import com.ruoyi.system.domain.dto.OrderDto;
 import com.ruoyi.system.domain.vo.OrderVo;
 import com.ruoyi.system.mapper.OrderMapper;
 import com.ruoyi.system.mapper.ProductMapper;
@@ -58,10 +60,17 @@ public class OrderController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('order:order:list')")
     @GetMapping("/list")
-    public TableDataInfo list(Order order) {
+    public TableDataInfo list(OrderDto order) {
         startPage();
-        if (SecurityUtils.getUserId() != 1L){
-            order.setcId(SecurityUtils.getUserId());
+        // 管理员显示所有订单
+        if (order.getRoleId() != 1L){
+            // 普通用户显示自己下的订单
+            if (order.getRoleId() == 100L){
+                order.setcId(SecurityUtils.getUserId());
+            } else if (order.getRoleId() == 101L){
+                // 家政员显示收到的订单
+                order.setbId(SecurityUtils.getUserId());
+            }
         }
         List<Order> orderList = orderMapper.selectOrderList(order);
         List<OrderVo> orderVoList = orderList.stream().map(order1 -> {

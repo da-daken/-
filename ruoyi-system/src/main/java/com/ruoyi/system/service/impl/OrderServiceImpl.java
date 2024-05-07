@@ -19,12 +19,10 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.PageUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.bean.BeanCopyUtils;
-import com.ruoyi.system.domain.AYTime;
-import com.ruoyi.system.domain.OrderTime;
+import com.ruoyi.system.domain.*;
 import com.ruoyi.system.domain.vo.OrderVo;
 import com.ruoyi.system.mapper.OrderMapper;
 import com.ruoyi.system.publisher.RocketMqPublisher;
-import com.ruoyi.system.domain.Product;
 import com.ruoyi.system.mapper.ProductMapper;
 import com.ruoyi.system.mapper.SysUserRoleMapper;
 import com.ruoyi.system.service.IOrderService;
@@ -35,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import com.ruoyi.system.domain.Order;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 
@@ -133,7 +130,10 @@ public class OrderServiceImpl implements IOrderService {
         if (null == userId || null == productId || null == count || null == bId){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-
+        SysUserRole sysUserRole = sysUserRoleMapper.selectUserRoleById(userId);
+        if (sysUserRole.getRoleId() == 1L || sysUserRole.getRoleId() == 101L){
+            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "只有普通用户可以预约下单，请切换身份");
+        }
         // 3. 防重令牌【令牌的对比和删除必须保证原子性】
         Cookie[] cookies = request.getCookies();
         String token = null;

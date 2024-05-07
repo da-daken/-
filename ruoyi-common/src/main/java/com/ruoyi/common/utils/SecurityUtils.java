@@ -20,7 +20,6 @@ import com.ruoyi.common.exception.ServiceException;
  */
 public class SecurityUtils
 {
-
     /**
      * 用户ID
      **/
