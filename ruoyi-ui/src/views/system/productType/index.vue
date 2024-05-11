@@ -15,7 +15,7 @@
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="10" class="mb8">
+    <el-row :gutter="10" class="mb8" v-if="this.$store.state.user.roles.at(0) === 'admin'">
       <el-col :span="1.5">
         <el-button
           type="primary"
@@ -68,7 +68,7 @@
       <el-table-column label="展示大图" align="center" prop="img" />
       <el-table-column label="服务详情" align="center" prop="content" />
       <el-table-column label="单位" align="center" prop="unit" />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" v-if="this.$store.state.user.roles.at(0) === 'admin'">
         <template slot-scope="scope">
           <el-button
             size="mini"

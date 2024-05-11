@@ -7,6 +7,7 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.system.domain.AYTime;
 import com.ruoyi.system.domain.Order;
 import com.ruoyi.system.domain.OrderTime;
+import com.ruoyi.system.domain.vo.OrderVVo;
 import com.ruoyi.system.domain.vo.OrderVo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +27,7 @@ public interface IOrderService
      * @param id 用户、家政员主键
      * @return 用户、家政员
      */
-    public Order selectOrderById(Long id);
+    public OrderVVo selectOrderById(Long id);
 
     /**
      * 查询用户、家政员列表

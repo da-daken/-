@@ -9,8 +9,10 @@ import com.ruoyi.system.domain.Product;
  * @author ruoyi
  * @date 2024-03-17
  */
-public interface IProductService 
-{
+public interface IProductService {
+
+    List<Product> selectProductListForRe(Product product);
+
     /**
      * 查询【请填写功能名称】
      * 

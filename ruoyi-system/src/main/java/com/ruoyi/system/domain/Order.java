@@ -35,22 +35,23 @@ public class Order extends BaseEntity
     private Long productId;
 
     /** 当天的日期 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "当天的日期", width = 30, dateFormat = "yyyy-MM-dd")
     private Date dateTime;
 
     /** 开始时间（上门时间） */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "开始时间", readConverterExp = "上=门时间")
     private Date startTime;
 
     /** 结束时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "结束时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date endTime;
 
     /** 数量 */
     @Excel(name = "数量")
-    private Long counts;
+    private double counts;
 
     /** 订单状态：0 订单创建，1 支付成功，2 订单取消，3 订单完成，4 待评价，5 已评价 */
     @Excel(name = "订单状态：0 订单创建，1 支付成功，2 订单取消，3 订单完成，4 待评价，5 已评价")
@@ -127,12 +128,12 @@ public class Order extends BaseEntity
     {
         return endTime;
     }
-    public void setCount(Long count) 
+    public void setCount(double count)
     {
         this.counts = count;
     }
 
-    public Long getCount() 
+    public double getCount()
     {
         return counts;
     }

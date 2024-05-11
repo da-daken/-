@@ -88,7 +88,7 @@ public class ReserveServiceImpl implements ReserveService {
         // 获取阿姨对应星期的工作时间
         List<AYTime> ayTime = getAYTime(calDate, bId);
 
-        // 获取阿姨当天的所有已支付订单时间
+        // 获取阿姨当天的所有未取消订单时间
         List<AYTime> orderTimes = orderService.getOrderTime1(calDate);
 
         // 1. 先把当前时间的之前的时间设为 false
@@ -137,26 +137,26 @@ public class ReserveServiceImpl implements ReserveService {
         List<AYTime> ayTimeList = new ArrayList<>();
         AYTime ayTime = new AYTime();
         switch (dayOfWeek) {
-            case 0 :
-                ayTime = JSON.parseObject(workTime.getSun(), AYTime.class);
+            case 7 :
+                ayTime = JSON.parseObject(workTime.getSat(), AYTime.class);
                 break;
             case 1 :
-                ayTime = JSON.parseObject(workTime.getMon(), AYTime.class);
+                ayTime = JSON.parseObject(workTime.getSun(), AYTime.class);
                 break;
             case 2 :
-                ayTime = JSON.parseObject(workTime.getTues(), AYTime.class);
+                ayTime = JSON.parseObject(workTime.getMon(), AYTime.class);
                 break;
             case 3 :
-                ayTime = JSON.parseObject(workTime.getWed(), AYTime.class);
+                ayTime = JSON.parseObject(workTime.getTues(), AYTime.class);
                 break;
             case 4 :
-                ayTime = JSON.parseObject(workTime.getThur(), AYTime.class);
+                ayTime = JSON.parseObject(workTime.getWed(), AYTime.class);
                 break;
             case 5 :
-                ayTime = JSON.parseObject(workTime.getFri(), AYTime.class);
+                ayTime = JSON.parseObject(workTime.getThur(), AYTime.class);
                 break;
             case 6 :
-                ayTime = JSON.parseObject(workTime.getSat(), AYTime.class);
+                ayTime = JSON.parseObject(workTime.getFri(), AYTime.class);
                 break;
         }
         ayTimeList.add(ayTime);

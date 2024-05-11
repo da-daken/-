@@ -107,8 +107,11 @@
           <el-table-column label="用户名称" align="center" key="userName" prop="userName" v-if="columns[1].visible" :show-overflow-tooltip="true" />
           <el-table-column label="用户昵称" align="center" key="nickName" prop="nickName" v-if="columns[2].visible" :show-overflow-tooltip="true" />
           <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber" v-if="columns[4].visible" width="120" />
-          // todo 传入用户角色id
-          <el-table-column label="用户角色" align="center" key="phonenumber" prop="phonenumber" v-if="columns[4].visible" width="120" />
+          <el-table-column label="用户角色" align="center" key="role" prop="role" width="120" >
+            <template slot-scope="scope">
+              <dict-tag :options="dict.type.sys_user_role" :value="scope.row.role"/>
+            </template>
+          </el-table-column>
           <el-table-column label="审核状态" align="center" key="checkStatus" prop="checkStatus" v-if="columns[5].visible" width="120" >
             <template slot-scope="scope">
               <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.checkStatus"/>
@@ -238,7 +241,7 @@ import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
   name: "User",
-  dicts: ['sys_normal_disable', 'sys_user_sex'],
+  dicts: ['sys_normal_disable', 'sys_user_sex', 'sys_user_role'],
   components: { Treeselect },
   data() {
     return {
@@ -355,6 +358,7 @@ export default {
     this.getConfigKey("sys.user.initPassword").then(response => {
       this.initPassword = response.msg;
     });
+
   },
   methods: {
     /** 查询用户列表 */
@@ -364,6 +368,7 @@ export default {
           this.userList = response.rows;
           this.total = response.total;
           this.loading = false;
+        console.log(this.userList)
         }
       );
     },

@@ -20,6 +20,7 @@ import com.ruoyi.common.utils.PageUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.bean.BeanCopyUtils;
 import com.ruoyi.system.domain.*;
+import com.ruoyi.system.domain.vo.OrderVVo;
 import com.ruoyi.system.domain.vo.OrderVo;
 import com.ruoyi.system.mapper.OrderMapper;
 import com.ruoyi.system.publisher.RocketMqPublisher;
@@ -80,9 +81,10 @@ public class OrderServiceImpl implements IOrderService {
      * @return 用户、家政员
      */
     @Override
-    public Order selectOrderById(Long id)
-    {
-        return orderMapper.selectOrderById(id);
+    public OrderVVo selectOrderById(Long id) {
+        Order order = orderMapper.selectOrderById(id);
+        OrderVVo orderVVo = BeanCopyUtils.copyBean(order, OrderVVo.class);
+        return orderVVo;
     }
 
     /**
@@ -125,9 +127,8 @@ public class OrderServiceImpl implements IOrderService {
         // 2. 健壮性校验
         Long userId = order.getcId();
         Long productId = order.getProductId();
-        Long count = order.getCount();
         Long bId = order.getbId();
-        if (null == userId || null == productId || null == count || null == bId){
+        if (null == userId || null == productId || null == bId){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         SysUserRole sysUserRole = sysUserRoleMapper.selectUserRoleById(userId);
@@ -159,6 +160,23 @@ public class OrderServiceImpl implements IOrderService {
         order.setId(generateOrderSn(userId));
         order.setStatus(OrderStatus.NO_PAY.getCode());
         order.setCreateTime(DateUtils.getNowDate());
+        // 当是保洁类型按时间计算数量
+        if (order.getProductId() == 1L){
+            Date startTime = order.getStartTime();
+            Date endTime = order.getEndTime();
+            String format1 = simpleDateFormat2.format(startTime);
+            String[] split1 = format1.split(":");
+            String format2 = simpleDateFormat2.format(endTime);
+            String[] split2 = format2.split(":");
+            double tmp = Long.parseLong(split2[0]) - Long.parseLong(split1[0]);
+            if (Long.parseLong(split2[1]) - Long.parseLong(split1[1]) == 30){
+                tmp += 0.5;
+            } else {
+                tmp -= 0.5;
+            }
+            order.setCount(tmp);
+        }
+
         try {
              // 发送一个定时任务，5分钟自动取消订单
              rocketMqPublisher.sendOrderSnInfo(order);

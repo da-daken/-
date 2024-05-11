@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="家政员id" prop="bId">
+      <el-form-item label="家政员" prop="bId">
         <el-input
           v-model="queryParams.bId"
           placeholder="请输入家政员id"
@@ -9,7 +9,7 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="服务id" prop="productId">
+      <el-form-item label="服务" prop="productId">
         <el-input
           v-model="queryParams.productId"
           placeholder="请输入服务类型id"
@@ -95,17 +95,12 @@
     <el-table v-loading="loading" :data="orderList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="订单id" align="center" prop="id" />
-      <el-table-column label="家政员id" align="center" prop="bId" />
-      <el-table-column label="服务id" align="center" prop="pId" />
+      <el-table-column label="家政员" align="center" prop="bName" />
+      <el-table-column label="服务类型" align="center" prop="productName" />
+      <el-table-column label="创建时间" align="center" prop="createTime" />
       <el-table-column label="开始时间" align="center" prop="startTime" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.startTime, '{y}-{m}-{d} {h}:{m}:{s}') }}</span>
-        </template>
       </el-table-column>
       <el-table-column label="结束时间" align="center" prop="endTime" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.endTime, '{y}-{m}-{d} {h}:{m}:{s}') }}</span>
-        </template>
       </el-table-column>
       <el-table-column label="订单总价" align="center" prop="totalPrice" />
       <el-table-column label="订单单项数量" align="center" prop="count" />
@@ -114,7 +109,11 @@
           <dict-tag :options="dict.type.sys_order_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="6位数的订单核销码" align="center" prop="code" />
+      <el-table-column label="6位数的订单核销码" align="center" prop="code" >
+        <template slot-scope="scope">
+          {{ getBCode(scope.row) }}
+        </template>
+      </el-table-column>
       <el-table-column label="该订单服务的得分" align="center" prop="score" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
@@ -123,7 +122,6 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['order:order:edit']"
           >下一步操作</el-button>
         </template>
       </el-table-column>
@@ -225,10 +223,20 @@ export default {
     this.getList();
   },
   methods: {
+    getBCode(row) {
+      console.log(row)
+      if (this.$store.state.user.roles.at(0) !== 'service'){
+        return row.code
+      } else if (row.status === 3 || row.status === 4){
+        return row.code
+      } else {
+        return '******'
+      }
+    },
     /** 查询用户、家政员列表 */
     getList() {
       this.loading = true;
-      this.queryParams.roleId = this.$store.state.user.roleId
+      this.queryParams.roleId = this.$store.state.user.roles.at(0)
       listOrder(this.queryParams).then(response => {
         this.orderList = response.rows;
         this.total = response.total;

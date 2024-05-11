@@ -4,13 +4,13 @@ import com.ruoyi.system.domain.Order;
 
 
 public class OrderDto extends Order {
-    private Long roleId;
+    private String roleId;
 
-    public Long getRoleId() {
+    public String getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(Long roleId) {
+    public void setRoleId(String roleId) {
         this.roleId = roleId;
     }
 }

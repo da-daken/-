@@ -74,6 +74,30 @@ public class ProductServiceImpl implements IProductService
         return productList;
     }
 
+    @Override
+    public List<Product> selectProductListForRe(Product product) {
+        List<Product> productList = productMapper.selectProductList(product);
+        productList = productList.stream().map(product1 -> {
+            // 计算得分
+            Order order = new Order();
+            order.setbId(product1.getUserId());
+            order.setStatus(OrderStatus.COMMIT.getCode());
+            order.setpId(product1.getId());
+            List<Order> orderList = orderMapper.selectOrderList(order);
+            if (orderList.isEmpty()){
+                product1.setScore(0L);
+            } else {
+                long tmp = 0L;
+                for (Order order1 : orderList) {
+                    tmp += order1.getScore();
+                }
+                product1.setScore(tmp / orderList.size());
+            }
+            return product1;
+        }).collect(Collectors.toList());
+        return productList;
+    }
+
     /**
      * 新增【请填写功能名称】
      * 

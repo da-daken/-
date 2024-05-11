@@ -19,21 +19,26 @@
         <el-col :sm="24" :lg="12" style="padding-left: 50px">
           <el-row>
             <el-col :span="12">
-              <h2>服务类型</h2>
+              <h1>以下是小店的服务类型：</h1>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="6">
-              <h4>日常保洁</h4>
+              <h2>日常保洁</h2>
               <ul>
-                <li>点击跳转（待实现）</li>
+<!--                <li>点击跳转（待实现）</li>-->
               </ul>
             </el-col>
             <el-col :span="6">
-              <h4>擦玻璃</h4>
+              <h2>擦玻璃</h2>
               <ul>
-                <li>点击跳转（待实现）</li>
+<!--                <li>点击跳转（待实现）</li>-->
               </ul>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-button @click="reResever">点击跳转</el-button>
             </el-col>
           </el-row>
         </el-col>
@@ -43,7 +48,8 @@
     <el-row :gutter="20">
       <el-col :xs="24" :sm="24" :md="12" :lg="8">
         <div>
-          金牌家政员展示！！！！！：
+          <h1>金牌家政员展示！！！！！：</h1>
+
         </div>
         <a-list :grid="{ gutter: 16, column: 2 }" :data-source="dataList">
 
@@ -94,11 +100,16 @@ export default {
   },
   async created() {
     await this.getData()
+    console.log(this.$store.state.user)
   },
 
   methods: {
     goTarget(href) {
       window.open(href, "_blank");
+    },
+    reResever(){
+      // window.location.href='http://localhost/resever'
+      this.$router.push("/resever")
     },
     async getData() {
       const resp = await goldenService()

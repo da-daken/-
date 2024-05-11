@@ -4,6 +4,21 @@
     <div id="main" style="width: 600px;height:400px;">
 
     </div>
+
+    平台服务得分总排行榜（从高到底）：
+    <div>
+      <ul class="infinite-list" v-infinite-scroll="load" style="overflow:auto">
+        <li v-for="ayInfo in ayInfoList" class="infinite-list-item">
+          <el-descriptions title="服务信息">
+            <el-descriptions-item label="家政员">{{ ayInfo.nickName }}</el-descriptions-item>
+            <el-descriptions-item label="服务名称">{{ ayInfo.typeName }}</el-descriptions-item>
+            <el-descriptions-item label="服务详情">{{ ayInfo.content }}</el-descriptions-item>
+            <el-descriptions-item label="得分">{{ ayInfo.score }}</el-descriptions-item>
+          </el-descriptions>
+        </li>
+      </ul>
+    </div>
+
   </div>
 </template>
 
@@ -18,7 +33,7 @@ import {
 } from 'echarts/components';
 import { BarChart } from 'echarts/charts';
 import { CanvasRenderer } from 'echarts/renderers';
-import { hotService } from "@/api/order/order"
+import {hotService, topGoldenService} from "@/api/order/order"
 
 export default {
 
@@ -26,7 +41,9 @@ export default {
     return {
       dataList: [],
       sum1: [],
-      sum2: []
+      sum2: [],
+      ayInfoList:[],
+      count: 0
     }
   },
 
@@ -41,9 +58,18 @@ export default {
       BarChart,
       CanvasRenderer
     ]);
-
+    this.getData1()
   },
   methods: {
+    load () {
+      this.count += 2
+    },
+     getData1() {
+      topGoldenService().then(resp => {
+        this.ayInfoList = resp.data
+      })
+
+      },
     async getData() {
       const resp = await hotService(new Date())
       this.dataList = resp.data

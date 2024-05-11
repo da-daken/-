@@ -4,7 +4,7 @@
       <el-form-item label="服务类型" prop="typeId">
         <el-select
           v-model="queryParams.typeId"
-          placeholder="用户审核状态"
+          placeholder="服务类型"
           clearable
           style="width: 240px"
           @keyup.enter.native="handleQuery"
@@ -18,10 +18,10 @@
         </el-select>
 
       </el-form-item>
-      <el-form-item label="单价" prop="singelPrice">
+      <el-form-item label="家政员" prop="singelPrice">
         <el-input
           v-model="queryParams.singelPrice"
-          placeholder="请输入单价"
+          placeholder="请输入家政员"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -39,7 +39,7 @@
               slot="extra"
               width="272"
               alt="logo"
-              src=""
+              :src=item.img
             />
           </div>
           <div>
@@ -73,13 +73,30 @@
 
     <!-- 添加或修改【请填写功能名称】对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="单价" prop="singelPrice">
-          <el-input v-model="form.singelPrice" placeholder="请输入单价" />
-        </el-form-item>
-        <el-form-item label="数量" prop="typeId">
+      <el-form ref="form" :model="form"  label-width="80px">
+        <el-form-item label="数量" prop="typeId" v-if="this.form.typeId === 2">
           <el-input v-model="form.counts" placeholder="需要的数量" />
         </el-form-item>
+        <div class="block">
+          <span class="demonstration">选择预约日期</span>
+          <el-date-picker clearable
+                          v-model="date1"
+                          type="date"
+                          value-format="yyyy-MM-dd"
+                          placeholder="选择预约日期"
+          @change="handleChange">
+          </el-date-picker>
+        </div>
+        <div class="times-grid">
+          <div
+          class="time-slot"
+          v-for="(enableTime, index) in enableTimeList"
+          :key="index"
+          :class="{'disabled' : enableTime.enable !== 'true', 'selected' : isSelectedTime(index)}"
+          @click="toggle(index)">
+            {{ enableTime.time }}
+          </div>
+        </div>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -92,7 +109,7 @@
 <script>
 import {getProduct, delProduct, addProduct, updateProduct, listProductForRe, getInfoForRe} from "@/api/system/product";
 import 'ant-design-vue/dist/antd'
-import {createOrder} from "@/api/order/order";
+import {createOrder, getEnableTime} from "@/api/order/order";
 
 export default {
   name: "Product",
@@ -131,19 +148,69 @@ export default {
       },
       // 表单参数
       form: {},
+      form1: {},
       request: {},
-      // 表单校验
-      rules: {
-      }
+      enableTimeList: [],
+      date1: null,
+      request1: {
+        calDate: null,
+        bId: null
+      },
+      selectedTimeRange: []
+
     };
   },
   created() {
     this.getList();
   },
   methods: {
+    toggle(index) {
+      // 判断时间段是否可选
+      if (this.enableTimeList[index].enable !== 'true'){
+        return ;
+      }
+      // 获取当前时间段是否已经被选中
+      const existingIndex = this.selectedTimeRange.indexOf(index)
+      // 如果已经选中，则取消选择
+      if (existingIndex >= 0) {
+        this.selectedTimeRange.splice(existingIndex, 1)
+      } else {
+        // 未被选中，而且当前时间已选中时间小于2，可用添加
+        if (this.selectedTimeRange.length < 2){
+          this.selectedTimeRange.push(index)
+        } else {
+          // 已经有了两个时间段，替换最后一个选中的时间段
+          this.selectedTimeRange[1] = index
+        }
+        // 确保时间段按照顺序存储
+        this.selectedTimeRange.sort((a, b) => a - b)
+      }
+    },
+    isSelectedTime(index) {
+      return this.selectedTimeRange.includes(index)
+    },
+    getStartTime() {
+      // 返回最早的时间
+      if (!this.selectedTimeRange.length) return null;
+      return this.enableTimeList[this.selectedTimeRange[0]].time
+    },
+    getEndTime() {
+      // 返回最后一个时间
+      if (this.selectedTimeRange.length < 2) return null;
+      return this.enableTimeList[this.selectedTimeRange[1]].time
+    },
+    handleChange() {
+      this.request1.calDate = this.date1
+      this.request1.bId = this.form.userId
+      getEnableTime(this.request1).then(resp => {
+        console.log(resp.data)
+        this.enableTimeList = resp.data
+      })
+    },
     /** 查询【请填写功能名称】列表 */
     getList() {
       this.loading = true;
+      console.log(this.queryParams)
       listProductForRe(this.queryParams).then(response => {
         this.productList = response.rows;
         this.total = response.total;
@@ -194,6 +261,7 @@ export default {
         console.log(this.form)
         this.open = true;
         this.title = "立即预约";
+        this.date1 = new Date()
       });
     },
     /** 修改按钮操作 */
@@ -255,3 +323,25 @@ export default {
   }
 };
 </script>
+<style>
+.times-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.time-slot {
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid #ddd;
+}
+.disabled {
+  background-color: #eaeaea;
+  cursor: not-allowed;
+}
+
+.selected {
+  background-color: #bada55;
+}
+</style>

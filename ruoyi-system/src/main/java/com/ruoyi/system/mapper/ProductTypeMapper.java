@@ -19,6 +19,7 @@ public interface ProductTypeMapper
      */
     public ProductType selectProductTypeById(Long id);
 
+
     /**
      * 查询【请填写功能名称】列表
      * 

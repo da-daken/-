@@ -62,9 +62,9 @@ public class ProductController extends BaseController
 
     @GetMapping("/listForRe")
     public TableDataInfo listForRe(Product product) {
-        startPage();
-        List<Product> productList = productService.selectProductList(product);
+        List<Product> productList = productService.selectProductListForRe(product);
         List<ProductVo> collect = productList.stream().map(product1 -> {
+            startPage();
             ProductVo productVo = BeanCopyUtils.copyBean(product1, ProductVo.class);
             productVo.setUsername(userMapper.selectUserById(product1.getUserId()).getNickName());
             ProductType productType = productTypeMapper.selectProductTypeById(product1.getTypeId());
@@ -80,7 +80,6 @@ public class ProductController extends BaseController
     /**
      * 获取【请填写功能名称】详细信息
      */
-    @PreAuthorize("@ss.hasPermi('system:product:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -97,7 +96,6 @@ public class ProductController extends BaseController
     /**
      * 新增【请填写功能名称】
      */
-    @PreAuthorize("@ss.hasPermi('system:product:add')")
     @Log(title = "【请填写功能名称】", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody Product product)
@@ -108,7 +106,6 @@ public class ProductController extends BaseController
     /**
      * 修改【请填写功能名称】
      */
-    @PreAuthorize("@ss.hasPermi('system:product:edit')")
     @Log(title = "【请填写功能名称】", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody Product product)
@@ -119,7 +116,6 @@ public class ProductController extends BaseController
     /**
      * 删除【请填写功能名称】
      */
-    @PreAuthorize("@ss.hasPermi('system:product:remove')")
     @Log(title = "【请填写功能名称】", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)

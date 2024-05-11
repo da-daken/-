@@ -1,13 +1,21 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="服务类型id" prop="typeId">
-        <el-input
+      <el-form-item label="服务类型" prop="typeId">
+        <el-select
           v-model="queryParams.typeId"
-          placeholder="请输入服务类型id"
+          placeholder="服务类型"
           clearable
+          style="width: 240px"
           @keyup.enter.native="handleQuery"
-        />
+        >
+          <el-option
+            v-for="dict in dict.type.sys_product_type"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="单价" prop="singelPrice">
         <el-input
@@ -111,8 +119,21 @@
     <!-- 添加或修改【请填写功能名称】对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="服务类型id" prop="typeId">
-          <el-input v-model="form.typeId" placeholder="请输入服务类型id" />
+        <el-form-item label="服务类型" prop="typeId">
+          <el-select
+            v-model="form.typeId"
+            placeholder="服务类型"
+            clearable
+            style="width: 240px"
+            @keyup.enter.native="handleQuery"
+          >
+            <el-option
+              v-for="dict in dict.type.sys_product_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="阿姨展示图片" prop="img">
           <el-input v-model="form.img" placeholder="请输入阿姨展示图片" />
@@ -137,6 +158,7 @@ import { listProduct, getProduct, delProduct, addProduct, updateProduct } from "
 
 export default {
   name: "Product",
+  dicts: ['sys_product_type'],
   data() {
     return {
       // 遮罩层

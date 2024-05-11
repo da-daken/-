@@ -31,4 +31,9 @@ public class DataController {
     public AjaxResult hotService(Date year) {
         return AjaxResult.success(dataService.hotService(year));
     }
+
+    @GetMapping("/topGoldenService")
+    public AjaxResult topGoldenService() {
+        return AjaxResult.success(dataService.topGoldenService());
+    }
 }

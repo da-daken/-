@@ -33,7 +33,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="dateTime != null "> and date_time = #{dateTime}</if>
             <if test="startTime != null "> and start_time = #{startTime}</if>
             <if test="endTime != null "> and end_time = #{endTime}</if>
-            <if test="counts != null "> and counts = #{counts}</if>
             <if test="status != null "> and status = #{status}</if>
             <if test="code != null  and code != ''"> and code = #{code}</if>
             <if test="pId != null  and pId != ''"> and p_id = #{pId}</if>

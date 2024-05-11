@@ -123,3 +123,20 @@ export function goldenService() {
     method: 'get'
   })
 }
+
+// topGoldenService
+export function topGoldenService() {
+  return request({
+    url: '/data/topGoldenService',
+    method: 'get'
+  })
+}
+
+// 获取阿姨可预约时间
+export async function getEnableTime(data) {
+  return request({
+    url: '/reserve',
+    method: 'post',
+    data: data
+  })
+}
