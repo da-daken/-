@@ -39,7 +39,6 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['system:product:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -50,7 +49,6 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['system:product:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -61,7 +59,6 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['system:product:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">

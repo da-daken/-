@@ -101,6 +101,7 @@ export default {
   async created() {
     await this.getData()
     console.log(this.$store.state.user)
+
   },
 
   methods: {

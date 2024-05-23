@@ -77,6 +77,9 @@
         <el-form-item label="数量" prop="typeId" v-if="this.form.typeId === 2">
           <el-input v-model="form.counts" placeholder="需要的数量" />
         </el-form-item>
+        <el-form-item label="地址" prop="address" >
+          <el-input v-model="form.address" placeholder="预约服务的地址" />
+        </el-form-item>
         <div class="block">
           <span class="demonstration">选择预约日期</span>
           <el-date-picker clearable
@@ -88,14 +91,14 @@
           </el-date-picker>
         </div>
         <div class="times-grid">
-          <div
+          <el-button
           class="time-slot"
           v-for="(enableTime, index) in enableTimeList"
           :key="index"
-          :class="{'disabled' : enableTime.enable !== 'true', 'selected' : isSelectedTime(index)}"
+          :class="{'disabled' : enableTime.enable === false, 'selected' : isSelectedTime(index)}"
           @click="toggle(index)">
             {{ enableTime.time }}
-          </div>
+          </el-button>
         </div>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -164,9 +167,13 @@ export default {
     this.getList();
   },
   methods: {
+    test(){
+      console.log('hahahah')
+    },
     toggle(index) {
       // 判断时间段是否可选
-      if (this.enableTimeList[index].enable !== 'true'){
+      if (this.enableTimeList[index].enable === 'false'){
+        console.log('true')
         return ;
       }
       // 获取当前时间段是否已经被选中
@@ -185,6 +192,7 @@ export default {
         // 确保时间段按照顺序存储
         this.selectedTimeRange.sort((a, b) => a - b)
       }
+      console.log(this.selectedTimeRange)
     },
     isSelectedTime(index) {
       return this.selectedTimeRange.includes(index)
@@ -291,10 +299,19 @@ export default {
               bId: this.form.userId,
               cId: this.$store.state.user.id,
               productId: this.form.typeId,
-              startTime: this.form.startTime,
-              endTime: this.form.endTime,
-              counts: this.form.counts
+              startTime: this.convertString(this.date1, this.getStartTime()),
+              endTime: this.convertString(this.date1, this.getEndTime()),
+              counts: this.form.counts,
+              address: this.form.address
             }
+            if (this.request.startTime === null || this.request.endTime === null) {
+              console.log(this.request.startTime)
+              console.log(this.request.endTime)
+              this.$modal.msgError("请选择正确的两个时间")
+              return ;
+            }
+            console.log(this.request)
+            console.log(this.selectedTimeRange)
             createOrder(this.request).then(response => {
               this.$modal.msgSuccess("预约成功");
               this.open = false;
@@ -303,6 +320,19 @@ export default {
           }
         }
       });
+    },
+    convertString(dateStr, timeStr) {
+      // 解析日期和时间字符串
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const [hours, minutes] = timeStr.split(':').map(Number);
+
+      // 创建一个新的Date对象，结合给定的日期和时间
+      const combinedDateTime = new Date(year, month - 1, day, hours, minutes);
+
+      // 格式化日期和时间为指定格式
+      const formattedDateTime = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+
+      return formattedDateTime;
     },
     /** 删除按钮操作 */
     handleDelete(row) {

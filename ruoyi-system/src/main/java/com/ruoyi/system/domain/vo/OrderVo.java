@@ -13,6 +13,7 @@ public class OrderVo extends Order implements Serializable {
     private String productName;
 
     private String bName;
+    private String cName;
 
     public String getTotalPrice() {
         return totalPrice;
@@ -36,5 +37,13 @@ public class OrderVo extends Order implements Serializable {
 
     public void setbName(String bName) {
         this.bName = bName;
+    }
+
+    public String getcName() {
+        return cName;
+    }
+
+    public void setcName(String cName) {
+        this.cName = cName;
     }
 }

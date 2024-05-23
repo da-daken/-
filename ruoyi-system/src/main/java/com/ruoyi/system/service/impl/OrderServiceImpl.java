@@ -286,7 +286,7 @@ public class OrderServiceImpl implements IOrderService {
      * @return
      */
     @Override
-    public int payOrder(Long id) {
+    public Order payOrder(Long id) {
         if (null == id){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -306,7 +306,8 @@ public class OrderServiceImpl implements IOrderService {
                         order.setStatus(OrderStatus.PAY.getCode());
                         // 在支付完订单后 生成核验码
                         order.setCode(generateVfCode());
-                        return orderMapper.updateOrder(order);
+                        orderMapper.updateOrder(order);
+                        return order;
                     } else {
                         throw new BusinessException(ErrorCode.SYSTEM_ERROR, "订单状态异常，请刷新");
                     }
@@ -321,7 +322,7 @@ public class OrderServiceImpl implements IOrderService {
             }
         }
 
-        return 0;
+        return null;
     }
 
 
@@ -331,16 +332,18 @@ public class OrderServiceImpl implements IOrderService {
      * @param id
      */
     @Override
-    public void cancelOrder(Long id) {
+    public Order cancelOrder(Long id) {
         Order order = orderMapper.selectOrderById(id);
         if (Objects.equals(OrderStatus.NO_PAY.getCode(), order.getStatus()) || Objects.equals(OrderStatus.PAY.getCode(), order.getStatus())){
             if (!checkOverTime(new Date(), order.getStartTime())){
                 order.setStatus(OrderStatus.CANCEL.getCode());
                 orderMapper.updateOrder(order);
+                return order;
             } else {
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "订单还剩一小时开始，不可取消");
             }
         }
+        return null;
     }
 
 
@@ -379,20 +382,44 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     /**
-     * 修改订单（校验，打分）
+     * 修改订单（取消、支付、校验、评分）
      *
      * @param order 用户、家政员
      * @return 结果
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public int updateOrder(Order order) {
-        if (OrderStatus.PAY.getCode().equals(order.getStatus())){
-            order = checkOrder(order);
+    public int updateOrder(Order order, String operate) {
+
+        Order order1 = orderMapper.selectOrderById(order.getId());
+
+        switch (operate) {
+            case "pay" : {
+                if (OrderStatus.NO_PAY.getCode().equals(order1.getStatus())) {
+                    order = payOrder(order.getId());
+                }
+                break;
+            }
+            case "cancel" : {
+                if (OrderStatus.NO_PAY.getCode().equals(order1.getStatus()) || OrderStatus.PAY.getCode().equals(order1.getStatus())){
+                    order = cancelOrder(order.getId());
+                }
+                break;
+            }
+            case "check" : {
+                if (OrderStatus.PAY.getCode().equals(order1.getStatus())){
+                    order = checkOrder(order);
+                }
+                break;
+            }
+            case "commit" : {
+                if (OrderStatus.NO_COMMIT.getCode().equals(order1.getStatus())){
+                    order = commitOrder(order);
+                }
+                break;
+            }
         }
-        else if (OrderStatus.NO_COMMIT.getCode().equals(order.getStatus())){
-            order = commitOrder(order);
-        }
+
         return orderMapper.updateOrder(order);
     }
 
@@ -489,32 +516,6 @@ public class OrderServiceImpl implements IOrderService {
     private boolean checkOverTime(Date nowTime, Date startTime){
         return startTime.getTime() - nowTime.getTime() < 3600*1000;
     }
-
-
-
-//    /**
-//     * 批量删除用户、家政员
-//     *
-//     * @param ids 需要删除的用户、家政员主键
-//     * @return 结果
-//     */
-//    @Override
-//    public int deleteOrderByIds(Long[] ids)
-//    {
-//        return orderMapper.deleteOrderByIds(ids);
-//    }
-
-//    /**
-//     * 删除用户、家政员信息
-//     *
-//     * @param id 用户、家政员主键
-//     * @return 结果
-//     */
-//    @Override
-//    public int deleteOrderById(Long id)
-//    {
-//        return orderMapper.deleteOrderById(id);
-//    }
 
 
 }

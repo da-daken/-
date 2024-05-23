@@ -96,7 +96,9 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="订单id" align="center" prop="id" />
       <el-table-column label="家政员" align="center" prop="bName" />
+      <el-table-column label="购买用户" align="center" prop="cName" />
       <el-table-column label="服务类型" align="center" prop="productName" />
+      <el-table-column label="服务地址" align="center" prop="address" />
       <el-table-column label="创建时间" align="center" prop="createTime" />
       <el-table-column label="开始时间" align="center" prop="startTime" width="180">
       </el-table-column>
@@ -138,28 +140,22 @@
     <!-- 添加或修改用户、家政员对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-<!--        <el-form-item label="结束时间" prop="endTime">-->
-<!--          <el-date-picker clearable-->
-<!--            v-model="form.endTime"-->
-<!--            type="date"-->
-<!--            value-format="yyyy-MM-dd"-->
-<!--            placeholder="请选择结束时间">-->
-<!--          </el-date-picker>-->
-<!--        </el-form-item>-->
         <el-form-item v-if="this.$store.state.user.roles.at(0) === 'service' && form.status === 1" label="6位数的订单核销码" prop="code">
-          <el-input v-model="form.code" placeholder="请输入6位数的订单核销码" />
+          <el-input v-model="form.code" @change="checkOperate" placeholder="请输入6位数的订单核销码" />
         </el-form-item>
         <el-form-item v-if="this.$store.state.user.roles.at(0) === 'normal' && form.status === 3" label="服务打分" prop="score">
-          <el-input v-model="form.score" placeholder="请输入该订单服务的得分（1-5分，填数字即可）" />
+          <el-input v-model="form.score" @change="commitOperate" placeholder="请输入该订单服务的得分（1-5分，填数字即可）" />
         </el-form-item>
-        <el-form-item v-if="this.$store.state.user.roles.at(0) === 'normal' && form.status === 1" label="是否取消" >
-          <el-radio-group v-model="form.status">
-            <el-radio
-              v-for="dict in dict.type.sys_yes_on"
-              :key="dict.value"
-              :label="dict.value"
-            >{{dict.label}}</el-radio>
-          </el-radio-group>
+        <el-form-item v-if="this.$store.state.user.roles.at(0) === 'normal' && (form.status === 1 || form.status === 0)" label="取消 or 支付" >
+<!--          <el-radio-group v-model="form.status" @change="onStatusChange(this.form.status)">-->
+<!--            <el-radio-->
+<!--              v-for="dict in dict.type.sys_yes_on"-->
+<!--              :key="dict.value"-->
+<!--              :label="dict.value"-->
+<!--            >{{dict.label}}</el-radio>-->
+<!--          </el-radio-group>-->
+          <el-button @click="cancelOperate"> 取消 </el-button>
+          <el-button v-if="this.form.status === 0" @click="payOperate"> 支付 </el-button>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -214,6 +210,7 @@ export default {
       },
       // 表单参数
       form: {},
+      operate: null,
       // 表单校验
       rules: {
       }
@@ -243,7 +240,18 @@ export default {
         this.loading = false;
       });
     },
-
+    cancelOperate() {
+      this.operate = 'cancel'
+    },
+    payOperate() {
+      this.operate ='pay'
+    },
+    checkOperate() {
+      this.operate = 'check'
+    },
+    commitOperate() {
+      this.operate = 'commit'
+    },
     // 取消按钮
     cancel() {
       this.open = false;
@@ -263,7 +271,8 @@ export default {
         createTime: null,
         status: null,
         code: null,
-        score: null
+        score: null,
+        operate:null
       };
       this.resetForm("form");
     },
@@ -304,6 +313,7 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
+            this.form.operate = this.operate
             updateOrder(this.form).then(response => {
               this.$modal.msgSuccess("操作成功");
               this.open = false;

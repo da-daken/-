@@ -53,9 +53,9 @@ public interface IOrderService
      */
     public AjaxResult generateToken(Long id, HttpServletResponse response);
 
-    public void cancelOrder(Long id);
+    public Order cancelOrder(Long id);
 
-    public int payOrder(Long id);
+    public Order payOrder(Long id);
 
     /**
      * 修改用户、家政员
@@ -63,7 +63,7 @@ public interface IOrderService
      * @param order 用户、家政员
      * @return 结果
      */
-    public int updateOrder(Order order);
+    public int updateOrder(Order order, String operate);
 
 //    /**
 //     * 批量删除用户、家政员

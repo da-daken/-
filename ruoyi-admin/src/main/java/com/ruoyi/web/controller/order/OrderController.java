@@ -13,6 +13,7 @@ import com.ruoyi.common.utils.bean.BeanCopyUtils;
 import com.ruoyi.system.domain.Product;
 import com.ruoyi.system.domain.ProductType;
 import com.ruoyi.system.domain.dto.OrderDto;
+import com.ruoyi.system.domain.request.OrderRequest;
 import com.ruoyi.system.domain.vo.OrderVo;
 import com.ruoyi.system.mapper.OrderMapper;
 import com.ruoyi.system.mapper.ProductMapper;
@@ -87,10 +88,12 @@ public class OrderController extends BaseController
             PageUtils.startPage();
             Product product = productMapper.selectProductById(order2.getpId());
             ProductType productType = productTypeMapper.selectProductTypeById(product.getTypeId());
-            SysUser sysUser = sysUserMapper.selectUserById(order2.getbId());
+            SysUser bUser = sysUserMapper.selectUserById(order2.getbId());
+            SysUser cUser = sysUserMapper.selectUserById(order2.getcId());
             OrderVo orderVo = BeanCopyUtils.copyBean(order2, OrderVo.class);
             orderVo.setProductName(productType.getName());
-            orderVo.setbName(sysUser.getNickName());
+            orderVo.setbName(bUser.getNickName());
+            orderVo.setcName(cUser.getNickName());
             orderVo.setTotalPrice(String.valueOf(order2.getCount() * product.getSingelPrice()));
             return orderVo;
         }).collect(Collectors.toList());
@@ -158,9 +161,9 @@ public class OrderController extends BaseController
 
     @Log(title = "用户、家政员", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody Order order)
-    {
-        return toAjax(orderService.updateOrder(order));
+    public AjaxResult edit(@RequestBody OrderRequest orderRequest) {
+        Order order = BeanCopyUtils.copyBean(orderRequest, Order.class);
+        return toAjax(orderService.updateOrder(order, orderRequest.getOperate()));
     }
 
 

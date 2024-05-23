@@ -1,5 +1,6 @@
 package com.ruoyi.framework.web.service;
 
+import com.ruoyi.common.enums.CheckStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.ruoyi.common.constant.CacheConstants;
@@ -17,6 +18,8 @@ import com.ruoyi.framework.manager.AsyncManager;
 import com.ruoyi.framework.manager.factory.AsyncFactory;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.service.ISysUserService;
+
+import java.util.UUID;
 
 /**
  * 注册校验方法
@@ -84,6 +87,8 @@ public class SysRegisterService
             }
             else
             {
+                SysUser sysUser1 = userService.selectUserByUserName(sysUser.getUserName());
+                userService.insertUserRole(sysUser1.getUserId(), new Long[]{100L});
                 AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.REGISTER, MessageUtils.message("user.register.success")));
             }
         }

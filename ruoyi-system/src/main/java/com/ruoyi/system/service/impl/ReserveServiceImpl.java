@@ -2,6 +2,8 @@ package com.ruoyi.system.service.impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
+import com.ruoyi.common.exception.BusinessException;
+import com.ruoyi.common.exception.ErrorCode;
 import com.ruoyi.system.domain.AYTime;
 import com.ruoyi.system.domain.EnableTime;
 import com.ruoyi.system.domain.WorkTime;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,6 +33,8 @@ public class ReserveServiceImpl implements ReserveService {
 
     private final SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("HH:mm");
 
+    private final SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("yyyy-MM-dd");
+
     /**
      * 预约时间表
      */
@@ -38,9 +43,8 @@ public class ReserveServiceImpl implements ReserveService {
     /**
      * 初始化时间数组
      */
-    @PostConstruct
-    public void init(){
-        timeArray = new ArrayList<>(34);
+    private void init(){
+        timeArray = new ArrayList<>(35);
         timeArray.add(new EnableTime("7:00", true));
         timeArray.add(new EnableTime("7:30", true));
         timeArray.add(new EnableTime("8:00", true));
@@ -84,23 +88,44 @@ public class ReserveServiceImpl implements ReserveService {
      */
     @Override
     public List<EnableTime> checkReserveTime(Date calDate, Long bId) {
-
+        init();
         // 获取阿姨对应星期的工作时间
         List<AYTime> ayTime = getAYTime(calDate, bId);
+
 
         // 获取阿姨当天的所有未取消订单时间
         List<AYTime> orderTimes = orderService.getOrderTime1(calDate);
 
         // 1. 先把当前时间的之前的时间设为 false
         String hm = simpleDateFormat1.format(new Date());
-        List<EnableTime> resTimeArray = timeArray.stream().peek(enableTime -> {
-            if (checkBefore(enableTime.getTime(), hm)) {
+        String ym = simpleDateFormat2.format(new Date());
+        Date parse = null;
+        try {
+            parse = simpleDateFormat2.parse(ym);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+        List<EnableTime> resTimeArray = timeArray;
+        boolean flag = false;
+        if (calDate.before(parse)){
+            resTimeArray = timeArray.stream().peek(enableTime -> {
                 enableTime.setEnable(false);
-            }
-        }).collect(Collectors.toList());
+            }).collect(Collectors.toList());
+        } else if (calDate.after(parse)){
+
+        } else {
+            flag = true;
+            resTimeArray = timeArray.stream().peek(enableTime -> {
+                if (checkBefore(enableTime.getTime(), hm)) {
+                    enableTime.setEnable(false);
+                }
+            }).collect(Collectors.toList());
+        }
+
         // 2. 从当前时间开始遍历数组
         for (EnableTime enableTime : resTimeArray){
-            if (checkBefore(enableTime.getTime(), hm)){
+            if (flag && checkBefore(enableTime.getTime(), hm)){
                 continue;
             }
             // 3. 不在工作时间内 或者 是否在已支付订单时间内
@@ -130,7 +155,9 @@ public class ReserveServiceImpl implements ReserveService {
      */
     private List<AYTime> getAYTime(Date date, Long bId){
         WorkTime workTime = workTimeService.selectWorkTimeByBId(bId);
-
+        if (workTime == null) {
+            throw  new BusinessException(ErrorCode.OPERATION_ERROR, "该家政员此日期不工作");
+        }
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
@@ -160,6 +187,9 @@ public class ReserveServiceImpl implements ReserveService {
                 break;
         }
         ayTimeList.add(ayTime);
+        if (ayTime.getStartTime().equals("") || ayTime.getEndTime().equals("")){
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "该家政员此日期不工作");
+        }
         return ayTimeList;
     }
 

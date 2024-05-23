@@ -52,6 +52,11 @@ export const constantRoutes = [
     component: () => import('@/views/register'),
     hidden: true
   },
+  // {
+  //   path: '/resever',
+  //   component: () => import('@/views/resever/index'),
+  //   hidden: true
+  // },
   {
     path: '/404',
     component: () => import('@/views/error/404'),
@@ -72,6 +77,12 @@ export const constantRoutes = [
         component: () => import('@/views/index'),
         name: 'Index',
         meta: { title: '首页', icon: 'dashboard', affix: true }
+      },
+      {
+        path: '/resever',
+        component: () => import('@/views/resever'),
+        name: 'Index',
+        meta: { title: '预约服务', icon: 'dashboard', affix: true }
       }
     ]
   },

@@ -41,7 +41,7 @@ public class Order extends BaseEntity
 
     /** 开始时间（上门时间） */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "开始时间", readConverterExp = "上=门时间")
+    @Excel(name = "开始时间", readConverterExp = "上门时间")
     private Date startTime;
 
     /** 结束时间 */
@@ -64,6 +64,8 @@ public class Order extends BaseEntity
     /** 该订单服务的得分 */
     @Excel(name = "该订单服务的得分")
     private Long score;
+
+    private String address;
 
     public void setId(Long id) 
     {
@@ -189,5 +191,13 @@ public class Order extends BaseEntity
 
     public void setpId(Long pId) {
         this.pId = pId;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }
