@@ -87,22 +87,18 @@ public class SysProfileController extends BaseController
      */
     @Log(title = "个人信息", businessType = BusinessType.UPDATE)
     @PutMapping("/updatePwd")
-    public AjaxResult updatePwd(String oldPassword, String newPassword)
-    {
+    public AjaxResult updatePwd(String oldPassword, String newPassword) {
         LoginUser loginUser = getLoginUser();
         String userName = loginUser.getUsername();
         String password = loginUser.getPassword();
-        if (!SecurityUtils.matchesPassword(oldPassword, password))
-        {
+        if (!SecurityUtils.matchesPassword(oldPassword, password)) {
             return error("修改密码失败，旧密码错误");
         }
-        if (SecurityUtils.matchesPassword(newPassword, password))
-        {
+        if (SecurityUtils.matchesPassword(newPassword, password)) {
             return error("新密码不能与旧密码相同");
         }
         newPassword = SecurityUtils.encryptPassword(newPassword);
-        if (userService.resetUserPwd(userName, newPassword) > 0)
-        {
+        if (userService.resetUserPwd(userName, newPassword) > 0) {
             // 更新缓存用户密码
             loginUser.getUser().setPassword(newPassword);
             tokenService.setLoginUser(loginUser);
@@ -133,5 +129,24 @@ public class SysProfileController extends BaseController
             }
         }
         return error("上传图片异常，请联系管理员");
+    }
+
+    /**
+     * 审核资料上传
+     */
+    @Log(title = "审核资料", businessType = BusinessType.UPDATE)
+    @PostMapping("/checkInfo")
+    public AjaxResult checkInfo(@RequestParam("avatarfile") MultipartFile file) throws Exception {
+        if (!file.isEmpty()) {
+            SysUser sysUser = userService.selectUserById(SecurityUtils.getUserId());
+            String checkInfo = FileUploadUtils.upload(RuoYiConfig.getAvatarPath(), file, MimeTypeUtils.IMAGE_EXTENSION);
+            // 更新审核资料, 并且发起审核
+            sysUser.setCheckInfo(checkInfo);
+            userService.startCheck(sysUser);
+            AjaxResult ajax = AjaxResult.success();
+            ajax.put("imgUrl", checkInfo);
+            return ajax;
+        }
+        return error("上传审核资料异常，请联系管理员");
     }
 }

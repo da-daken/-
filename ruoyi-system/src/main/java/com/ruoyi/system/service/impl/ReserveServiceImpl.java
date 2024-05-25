@@ -92,7 +92,6 @@ public class ReserveServiceImpl implements ReserveService {
         // 获取阿姨对应星期的工作时间
         List<AYTime> ayTime = getAYTime(calDate, bId);
 
-
         // 获取阿姨当天的所有未取消订单时间
         List<AYTime> orderTimes = orderService.getOrderTime1(calDate);
 

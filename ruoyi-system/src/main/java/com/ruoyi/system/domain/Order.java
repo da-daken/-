@@ -130,15 +130,7 @@ public class Order extends BaseEntity
     {
         return endTime;
     }
-    public void setCount(double count)
-    {
-        this.counts = count;
-    }
 
-    public double getCount()
-    {
-        return counts;
-    }
     public void setStatus(Long status) 
     {
         this.status = status;
@@ -177,7 +169,7 @@ public class Order extends BaseEntity
             .append("dateTime", getDateTime())
             .append("startTime", getStartTime())
             .append("endTime", getEndTime())
-            .append("count", getCount())
+            .append("count", getCounts())
             .append("createTime", getCreateTime())
             .append("status", getStatus())
             .append("code", getCode())
@@ -199,5 +191,13 @@ public class Order extends BaseEntity
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public double getCounts() {
+        return counts;
+    }
+
+    public void setCounts(double count) {
+        this.counts = count;
     }
 }

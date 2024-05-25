@@ -589,7 +589,6 @@ public class SysUserServiceImpl implements ISysUserService
 
         // 普通用户才能发起审核
         if (userRole.getRoleId() == UserConstants.COMMON){
-            sysUser.setCheckInfo(sysUser.getCheckInfo());
             sysUser.setCheckStatus(CheckStatus.WAIT_CHECK.getCode());
             userMapper.updateUser(sysUser);
         } else {

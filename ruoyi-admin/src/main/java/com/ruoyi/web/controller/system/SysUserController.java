@@ -259,7 +259,6 @@ public class SysUserController extends BaseController
         return success(deptService.selectDeptTreeList(dept));
     }
 
-    // todo 权限
     @Log(title = "管理员审核用户信息")
     @PostMapping("/check")
     public AjaxResult checkUser(@RequestBody CheckUserRequest checkUserRequest){

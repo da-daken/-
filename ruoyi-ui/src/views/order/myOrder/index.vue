@@ -3,7 +3,7 @@
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="家政员" prop="bId">
         <el-input
-          v-model="queryParams.bId"
+          v-model="queryParams.username"
           placeholder="请输入家政员id"
           clearable
           @keyup.enter.native="handleQuery"
@@ -11,7 +11,7 @@
       </el-form-item>
       <el-form-item label="服务" prop="productId">
         <el-input
-          v-model="queryParams.productId"
+          v-model="queryParams.productTypeName"
           placeholder="请输入服务类型id"
           clearable
           @keyup.enter.native="handleQuery"
@@ -105,7 +105,8 @@
       <el-table-column label="结束时间" align="center" prop="endTime" width="180">
       </el-table-column>
       <el-table-column label="订单总价" align="center" prop="totalPrice" />
-      <el-table-column label="订单单项数量" align="center" prop="count" />
+      <el-table-column label="订单单项数量" align="center" prop="counts" />
+      <el-table-column label="联系电话" align="center" prop="phoneNumber" />
       <el-table-column label="订单状态" align="center" prop="status" >
         <template slot-scope="scope">
           <dict-tag :options="dict.type.sys_order_status" :value="scope.row.status"/>
@@ -116,7 +117,7 @@
           {{ getBCode(scope.row) }}
         </template>
       </el-table-column>
-      <el-table-column label="该订单服务的得分" align="center" prop="score" />
+      <el-table-column label="该订单服务的得分(1-5分)" align="center" prop="score" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button v-if="scope.row.status !== 4 && scope.row.status !== 2"
@@ -206,7 +207,9 @@ export default {
         code: null,
         pId:null,
         score: null,
-        roleId: null
+        roleId: null,
+        username: null,
+        productTypeName: null
       },
       // 表单参数
       form: {},
@@ -283,6 +286,8 @@ export default {
     },
     /** 重置按钮操作 */
     resetQuery() {
+      this.queryParams.username = ''
+      this.queryParams.productTypeName = ''
       this.resetForm("queryForm");
       this.handleQuery();
     },

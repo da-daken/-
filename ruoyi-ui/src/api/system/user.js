@@ -133,6 +133,15 @@ export function uploadAvatar(data) {
   })
 }
 
+// 审核资料上传
+export function uploadCheckInfo(data) {
+  return request({
+    url: '/system/user/profile/checkInfo',
+    method: 'post',
+    data: data
+  })
+}
+
 // 查询授权角色
 export function getAuthRole(userId) {
   return request({

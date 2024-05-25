@@ -43,17 +43,18 @@ public class OrderDelayListener implements RocketMQListener<String> {
             return ;
         }
         Order order = JSON.parseObject(s, Order.class);
-        log.info("收到定时取消信息 {}", order.getId());
+        Order newOrder = orderMapper.selectOrderById(order.getId());
+        log.info("收到定时取消信息 {}", newOrder.getId());
         // 1. 检查订单状态
-        if (Objects.equals(OrderStatus.NO_PAY.getCode(), order.getStatus())) {
+        if (Objects.equals(OrderStatus.NO_PAY.getCode(), newOrder.getStatus())) {
             // 2. 和支付动作抢锁
-            RLock lock = redissonClient.getLock("pay:lock:" + order.getId());
+            RLock lock = redissonClient.getLock("pay:lock:" + newOrder.getId());
             try {
                 if (lock.tryLock(80, -1, TimeUnit.MILLISECONDS)) {
                     // 改变订单状态为取消
-                    order.setStatus(OrderStatus.CANCEL.getCode());
-                    orderMapper.updateOrder(order);
-                    log.info("收到未支付订单 {} , 现将其取消！", order.getId());
+                    newOrder.setStatus(OrderStatus.CANCEL.getCode());
+                    orderMapper.updateOrder(newOrder);
+                    log.info("收到未支付订单 {} , 现将其取消！", newOrder.getId());
                 }
             } catch (InterruptedException e){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, e.getMessage());
@@ -63,7 +64,7 @@ public class OrderDelayListener implements RocketMQListener<String> {
                 }
             }
         } else {
-            log.info("该订单状态已改变，不用取消订单 {}", order.getId());
+            log.info("该订单状态已改变，不用取消订单 {}", newOrder.getId());
         }
 
     }

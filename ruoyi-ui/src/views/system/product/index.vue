@@ -80,7 +80,13 @@
       <el-table-column label="提供该服务的家政员id" align="center" prop="userId" />
       <el-table-column label="服务类型id" align="center" prop="typeId" />
       <el-table-column label="阿姨展示图片" align="center" prop="img"  >
-
+        <template slot-scope="scope">
+          <el-image
+            style="width: 100px; height: 100px"
+            :src= scope.row.img
+            :preview-src-list=[scope.row.img]>
+          </el-image>
+        </template>
       </el-table-column>
       <el-table-column label="服务详情" align="center" prop="content" />
       <el-table-column label="单价" align="center" prop="singelPrice" />
@@ -135,6 +141,17 @@
         <el-form-item label="阿姨展示图片" prop="img">
           <el-input v-model="form.img" placeholder="请输入阿姨展示图片" />
         </el-form-item>
+        <el-form-item label="阿姨展示图片" prop="img">
+          <el-upload
+            :action=this.uploadUrl
+            :headers=headerObj
+            list-type="picture-card"
+            :on-success="handleUploadSuccess"
+            :before-upload="beforeUpload"
+          >
+          <i class="el-icon-plus"></i>
+          </el-upload>
+        </el-form-item>
         <el-form-item label="服务详情">
           <editor v-model="form.content" :min-height="192"/>
         </el-form-item>
@@ -158,6 +175,10 @@ export default {
   dicts: ['sys_product_type'],
   data() {
     return {
+      uploadUrl:'http://localhost:8080/system/product/upload',
+      headerObj:{
+        Authorization: this.$store.state.user.token
+      },
       // 遮罩层
       loading: true,
       // 选中数组
@@ -199,6 +220,26 @@ export default {
     this.getList();
   },
   methods: {
+    handleUploadSuccess(res, file){
+      this.form.img = res.imgUrl
+    },
+    // 上传预处理
+    beforeUpload(file) {
+      // 可以在这里进行文件类型和大小的校验
+      const isImage = file.type.startsWith('image/');
+      const isLt5M = file.size / 1024 / 1024 < 5;
+
+      if (!isImage) {
+        this.$message.error('上传的文件必须是图片!');
+        return false;
+      }
+      if (!isLt5M) {
+        this.$message.error('上传的图片大小不能超过 5MB!');
+        return false;
+      }
+
+      return true;
+    },
     /** 查询【请填写功能名称】列表 */
     getList() {
       this.loading = true;

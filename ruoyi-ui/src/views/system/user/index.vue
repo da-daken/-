@@ -106,6 +106,15 @@
           <el-table-column label="用户编号" align="center" key="userId" prop="userId" v-if="columns[0].visible" />
           <el-table-column label="用户名称" align="center" key="userName" prop="userName" v-if="columns[1].visible" :show-overflow-tooltip="true" />
           <el-table-column label="用户昵称" align="center" key="nickName" prop="nickName" v-if="columns[2].visible" :show-overflow-tooltip="true" />
+          <el-table-column label="审核资料" align="center" key="checkInfo" prop="checkInfo" v-if="columns[3].visible" :show-overflow-tooltip="true" >
+            <template slot-scope="scope">
+              <el-image
+                style="width: 100px; height: 100px"
+                :src=scope.row.checkInfo
+                :preview-src-list=[scope.row.checkInfo]>
+              </el-image>
+            </template>
+          </el-table-column>
           <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber" v-if="columns[4].visible" width="120" />
           <el-table-column label="用户角色" align="center" key="role" prop="role" width="120" >
             <template slot-scope="scope">
@@ -238,6 +247,7 @@ import { listUser, getUser, delUser, addUser, updateUser, resetUserPwd, changeUs
 import { getToken } from "@/utils/auth";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+import 'ant-design-vue/dist/antd';
 
 export default {
   name: "User",

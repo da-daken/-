@@ -20,7 +20,7 @@
       </el-form-item>
       <el-form-item label="家政员" prop="singelPrice">
         <el-input
-          v-model="queryParams.singelPrice"
+          v-model="queryParams.username"
           placeholder="请输入家政员"
           clearable
           @keyup.enter.native="handleQuery"
@@ -35,12 +35,11 @@
       <a-list-item slot="renderItem" slot-scope="item, index">
         <a-card :title="item.productName">
           <div>
-            <img
-              slot="extra"
-              width="272"
-              alt="logo"
+            <el-image
+              style="width: 300px; height: 300px"
               :src=item.img
-            />
+              :preview-src-list=[item.img]>
+            </el-image>
           </div>
           <div>
             家政员姓名 ：{{ item.username }}
@@ -145,7 +144,7 @@ export default {
         typeId: null,
         img: null,
         content: null,
-        singelPrice: null,
+        username: null,
         score: null,
         isDeleted: null
       },
@@ -165,6 +164,7 @@ export default {
   },
   created() {
     this.getList();
+    console.log(this.$store.state.user)
   },
   methods: {
     test(){
@@ -252,6 +252,7 @@ export default {
     },
     /** 重置按钮操作 */
     resetQuery() {
+      this.queryParams.username = ''
       this.resetForm("queryForm");
       this.handleQuery();
     },
@@ -301,7 +302,7 @@ export default {
               productId: this.form.typeId,
               startTime: this.convertString(this.date1, this.getStartTime()),
               endTime: this.convertString(this.date1, this.getEndTime()),
-              counts: this.form.counts,
+              counts: Number(this.form.counts),
               address: this.form.address
             }
             if (this.request.startTime === null || this.request.endTime === null) {

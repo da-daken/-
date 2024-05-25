@@ -40,7 +40,7 @@ public class RocketMqPublisher {
         String message = JSON.toJSONString(order, new SerializerFeature[]{SerializerFeature.WriteClassName});
         // 延时队列
         rocketMQTemplate.syncSend(topic, MessageBuilder.withPayload(message).build(), 3000, 9);
-        log.info("收到订单：{}, 发送延时消息", order.getId());
+        log.info("收到订单：{}, 发送定时取消消息", order.getId());
     }
 
 
@@ -52,6 +52,7 @@ public class RocketMqPublisher {
         String message = JSON.toJSONString(order, new SerializerFeature[]{SerializerFeature.WriteClassName});
         // 延时队列
         rocketMQTemplate.syncSend(checkTopic, MessageBuilder.withPayload(message).build(), 3000, 14);
+        log.info("发送自动评价消息 订单 {}", order.getId());
     }
 
 }

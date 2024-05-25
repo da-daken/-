@@ -7,6 +7,7 @@ const user = {
     id: '',
     name: '',
     avatar: '',
+    checkInfo: '',
     roles: [],
     permissions: []
   },
@@ -23,6 +24,9 @@ const user = {
     },
     SET_AVATAR: (state, avatar) => {
       state.avatar = avatar
+    },
+    SET_CHECKINFO: (state, checkInfo) => {
+      state.checkInfo = checkInfo
     },
     SET_ROLES: (state, roles) => {
       state.roles = roles
@@ -56,6 +60,7 @@ const user = {
         getInfo().then(res => {
           const user = res.user
           const avatar = (user.avatar == "" || user.avatar == null) ? require("@/assets/images/profile.jpg") : process.env.VUE_APP_BASE_API + user.avatar;
+          const checkInfo = process.env.VUE_APP_BASE_API + user.checkInfo
           if (res.roles && res.roles.length > 0) { // 验证返回的roles是否是一个非空数组
             commit('SET_ROLES', res.roles)
             commit('SET_PERMISSIONS', res.permissions)
@@ -65,6 +70,7 @@ const user = {
           commit('SET_ID', user.userId)
           commit('SET_NAME', user.userName)
           commit('SET_AVATAR', avatar)
+          commit('SET_CHECKINFO', checkInfo)
           resolve(res)
         }).catch(error => {
           reject(error)

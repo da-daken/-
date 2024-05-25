@@ -68,7 +68,7 @@ public class OrderServiceImpl implements IOrderService {
     @Autowired
     private ProductMapper productMapper;
 
-    private final SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("yyyy:MM:dd");
+    private final SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("yyyy-MM-dd");
     private final SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("HH:mm");
 
 
@@ -101,7 +101,7 @@ public class OrderServiceImpl implements IOrderService {
             PageUtils.startPage();
             Product product = productMapper.selectProductById(order1.getpId());
             OrderVo orderVo = BeanCopyUtils.copyBean(order1, OrderVo.class);
-            orderVo.setTotalPrice(String.valueOf(order1.getCount() * product.getSingelPrice()));
+            orderVo.setTotalPrice(String.valueOf(order1.getCounts() * product.getSingelPrice()));
             return orderVo;
         }).collect(Collectors.toList());
 
@@ -160,27 +160,36 @@ public class OrderServiceImpl implements IOrderService {
         order.setId(generateOrderSn(userId));
         order.setStatus(OrderStatus.NO_PAY.getCode());
         order.setCreateTime(DateUtils.getNowDate());
-        // 当是保洁类型按时间计算数量
+
+        Date startTime = order.getStartTime();
+        Date endTime = order.getEndTime();
+        String format1 = simpleDateFormat2.format(startTime);
+        String[] split1 = format1.split(":");
+        String format2 = simpleDateFormat2.format(endTime);
+        String[] split2 = format2.split(":");
+        double tmp = Double.parseDouble(split2[0]) - Double.parseDouble(split1[0]);
+        if (Long.parseLong(split2[1]) - Long.parseLong(split1[1]) == 30L){
+            tmp += 0.5;
+        } else if (Long.parseLong(split1[1]) - Long.parseLong(split2[1]) == 30L){
+            tmp -= 0.5;
+        }
+        // 保洁类型按时间计算数量
         if (order.getProductId() == 1L){
-            Date startTime = order.getStartTime();
-            Date endTime = order.getEndTime();
-            String format1 = simpleDateFormat2.format(startTime);
-            String[] split1 = format1.split(":");
-            String format2 = simpleDateFormat2.format(endTime);
-            String[] split2 = format2.split(":");
-            double tmp = Long.parseLong(split2[0]) - Long.parseLong(split1[0]);
-            if (Long.parseLong(split2[1]) - Long.parseLong(split1[1]) == 30){
-                tmp += 0.5;
-            } else {
-                tmp -= 0.5;
+            order.setCounts(tmp);
+        }
+        // 擦玻璃类型按count，与时间进行比较
+        else if (order.getProductId() == 2L){
+            // 一小时5平米
+            if (order.getCounts() != (tmp * 5)){
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "请根据推荐面积的预约的时长进行预约");
             }
-            order.setCount(tmp);
         }
 
         try {
+             int res = orderMapper.insertOrder(order);
              // 发送一个定时任务，5分钟自动取消订单
              rocketMqPublisher.sendOrderSnInfo(order);
-             return orderMapper.insertOrder(order);
+             return res;
         } catch (Exception e){
             log.error(e.getMessage());
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "订单保存失败");
@@ -272,8 +281,8 @@ public class OrderServiceImpl implements IOrderService {
     public List<AYTime> getOrderTime1(Date calDate) {
         List<OrderTime> orderTime = getOrderTime(calDate);
         return orderTime.stream().map(orderTime1 -> {
-            String startTime = simpleDateFormat1.format(orderTime1.getStartTime());
-            String endTime = simpleDateFormat1.format(orderTime1.getEndTime());
+            String startTime = simpleDateFormat2.format(orderTime1.getStartTime());
+            String endTime = simpleDateFormat2.format(orderTime1.getEndTime());
             return new AYTime(startTime, endTime);
         }).collect(Collectors.toList());
     }
@@ -475,7 +484,6 @@ public class OrderServiceImpl implements IOrderService {
                 // 发送一个2天内未评价自动评价为满分的定时消息
 
                 rocketMqPublisher.sendOrderTenInfo(oldOrder);
-                log.info("发送自动评价消息 订单 {}", oldOrder.getId());
             } else {
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "订单核销码错误");
             }

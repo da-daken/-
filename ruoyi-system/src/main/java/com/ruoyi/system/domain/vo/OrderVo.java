@@ -15,6 +15,8 @@ public class OrderVo extends Order implements Serializable {
     private String bName;
     private String cName;
 
+    private String phoneNumber;
+
     public String getTotalPrice() {
         return totalPrice;
     }
@@ -45,5 +47,13 @@ public class OrderVo extends Order implements Serializable {
 
     public void setcName(String cName) {
         this.cName = cName;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

@@ -9,9 +9,6 @@
     <el-form-item label="邮箱" prop="email">
       <el-input v-model="form.email" maxlength="50" />
     </el-form-item>
-    <el-form-item label="成为家政员的审核资料" prop="checkInfo">
-      <el-input v-model="form.checkInfo" placeholder="请上传资料的url地址" maxlength="50" />
-    </el-form-item>
     <el-form-item label="性别">
       <el-radio-group v-model="form.sex">
         <el-radio label="0">男</el-radio>
@@ -19,16 +16,31 @@
       </el-radio-group>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" size="mini" @click="submit">发起审核</el-button>
+      <el-button type="primary" size="mini" @click="submit">保存</el-button>
       <el-button type="danger" size="mini" @click="close">关闭</el-button>
     </el-form-item>
+    <div>
+      👇👇👇成为家政员👇👇👇:
+      <div>
+        <div >
+          <CheckInfo />
+        </div>
+
+
+      </div>
+    </div>
+
   </el-form>
+
 </template>
 
 <script>
-import { updateUserProfile } from "@/api/system/user";
+import {updateUserProfile, uploadCheckInfo} from "@/api/system/user";
+import UserAvatar from "@/views/system/user/profile/userAvatar";
+import CheckInfo from "@/views/system/user/profile/checkInfo";
 
 export default {
+  components: {CheckInfo, UserAvatar},
   props: {
     user: {
       type: Object
@@ -36,6 +48,7 @@ export default {
   },
   data() {
     return {
+      visible: false,
       form: {},
       // 表单校验
       rules: {
@@ -85,7 +98,7 @@ export default {
     },
     close() {
       this.$tab.closePage();
-    }
+    },
   }
 };
 </script>

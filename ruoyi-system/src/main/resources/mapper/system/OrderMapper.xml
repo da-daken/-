@@ -39,6 +39,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="pId != null  and pId != ''"> and p_id = #{pId}</if>
             <if test="score != null "> and score = #{score}</if>
         </where>
+        order by start_time desc
     </select>
     
     <select id="selectOrderById" parameterType="Long" resultMap="OrderResult">

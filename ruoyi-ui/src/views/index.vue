@@ -3,7 +3,7 @@
     <el-row :gutter="20">
       <el-col :sm="24" :lg="24">
         <blockquote class="text-warning" style="font-size: 14px">
-          欢迎光临 daken 的家政小店
+          欢迎光临 家政预约平台
           <br />
         </blockquote>
 
@@ -12,7 +12,7 @@
     </el-row>
     <el-row :gutter="20">
       <el-col :sm="24" :lg="12" style="padding-left: 20px">
-        <h2>daken 的家政小店</h2>
+        <h2>家政预约平台</h2>
         <p>
           这个平台可以满足你对日常家政服务预约的需求，有很多金牌阿姨！预约响应快！
         </p>
@@ -48,7 +48,7 @@
     <el-row :gutter="20">
       <el-col :xs="24" :sm="24" :md="12" :lg="8">
         <div>
-          <h1>金牌家政员展示！！！！！：</h1>
+          <h1>平台金牌家政员展示！！！！！：</h1>
 
         </div>
         <a-list :grid="{ gutter: 16, column: 2 }" :data-source="dataList">

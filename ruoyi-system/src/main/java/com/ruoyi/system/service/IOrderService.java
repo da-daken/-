@@ -96,7 +96,7 @@ public interface IOrderService
 
     /**
      * 核销订单
-     * @param checkRequest
+     * @param order
      */
     Order checkOrder(Order order);
 

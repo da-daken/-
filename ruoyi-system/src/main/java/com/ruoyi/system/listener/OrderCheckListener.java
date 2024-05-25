@@ -40,17 +40,19 @@ public class OrderCheckListener implements RocketMQListener<String> {
             return ;
         }
         Order order = JSON.parseObject(s, Order.class);
-        log.info("收到定时评价信息 {}", order.getId());
+        Order newOrder = orderMapper.selectOrderById(order.getId());
+        log.info("收到定时评价信息 {}", newOrder.getId());
         // 1. 检查订单状态
-        if (Objects.equals(OrderStatus.NO_COMMIT.getCode(), order.getStatus())) {
+        if (Objects.equals(OrderStatus.NO_COMMIT.getCode(), newOrder.getStatus())) {
             // 2. 和评价动作抢锁
-            RLock lock = redissonClient.getLock("commit:lock" + order.getId());
+            RLock lock = redissonClient.getLock("commit:lock" + newOrder.getId());
             try {
                 if (lock.tryLock(80, -1, TimeUnit.MILLISECONDS)) {
                     // 3. 改订单状态 && 自动评价满分
-                    order.setStatus(OrderStatus.COMMIT.getCode());
-                    order.setScore(5L);
-                    orderMapper.updateOrder(order);
+                    newOrder.setStatus(OrderStatus.COMMIT.getCode());
+                    newOrder.setScore(5L);
+                    orderMapper.updateOrder(newOrder);
+                    log.info("收到未评价订单 {} , 现将其自动评价为满分！", newOrder.getId());
                 }
             } catch (InterruptedException e) {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, e.getMessage());
@@ -60,7 +62,7 @@ public class OrderCheckListener implements RocketMQListener<String> {
                 }
             }
         } else {
-            log.info("该订单已经被评价，不用自动评价 {}", order.getId());
+            log.info("该订单已经被评价，不用自动评价 {}", newOrder.getId());
         }
 
     }
